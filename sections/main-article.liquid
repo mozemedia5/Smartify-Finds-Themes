@@ -1,0 +1,39 @@
+<article class="container" style="padding-top: 3rem; padding-bottom: 5rem; max-width: 800px;">
+  {% render 'breadcrumbs' %}
+
+  <header style="margin-top: 2rem; margin-bottom: 3rem;">
+    <span style="font-size: 0.85rem; font-weight: 700; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.75rem;">
+      SYSTEM UPDATE / {{ article.published_at | date: '%B %d, %Y' }}
+    </span>
+
+    <h1 style="font-size: clamp(2.25rem, 5vw, 3.25rem); font-weight: 900; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1.5rem;">
+      {{ article.title }}
+    </h1>
+
+    <p class="text-secondary" style="font-size: 1.05rem; font-weight: 500;">
+      By {{ article.author | escape }}
+    </p>
+  </header>
+
+  {%- if article.image -%}
+    <div style="border-radius: var(--border-radius); overflow: hidden; margin-bottom: 3rem; border: 1px solid var(--color-border);">
+      <img src="{{ article.image | image_url: width: 1200 }}"
+           alt="{{ article.title | escape }}"
+           width="1200"
+           height="600"
+           loading="eager"
+           style="width: 100%; height: auto; display: block;">
+    </div>
+  {%- endif -%}
+
+  <div class="article-content text-secondary" style="font-size: 1.1rem; line-height: 1.8; display: flex; flex-direction: column; gap: 1.5rem;">
+    {{ article.content }}
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Article Content",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,53 @@
+<section class="container" style="padding-top: 3rem; padding-bottom: 5rem;">
+  {% render 'breadcrumbs' %}
+
+  <div style="margin-bottom: 3rem;">
+    <h1 style="font-size: 2.75rem; font-weight: 900; margin-bottom: 1rem;">
+      {{ collection.title }}
+    </h1>
+    {%- if collection.description != blank -%}
+      <div class="text-secondary" style="max-width: 700px; line-height: 1.6; font-size: 1.1rem;">
+        {{ collection.description }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- paginate collection.products by section.settings.products_per_page -%}
+    {%- if collection.products.size == 0 -%}
+      <div style="text-align: center; padding: 5rem 0;">
+        <p class="text-secondary" style="margin-bottom: 2rem; font-size: 1.2rem;">This collection has no gadgets available at the moment.</p>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn-primary">Discover All Products</a>
+      </div>
+    {%- else -%}
+      <div class="grid grid-4" style="margin-bottom: 4rem;">
+        {%- for product in collection.products -%}
+          {% render 'product-card', product: product %}
+        {%- endfor -%}
+      </div>
+
+      <!-- Pagination -->
+      {%- if paginate.pages > 1 -%}
+        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; color: var(--color-text-secondary); font-weight: 600;">
+          {{ paginate | default_pagination }}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  {%- endpaginate -%}
+</section>
+
+{% schema %}
+{
+  "name": "Collection Products",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 4,
+      "max": 24,
+      "step": 4,
+      "default": 12,
+      "label": "Products per page"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,23 @@
+{% comment %}
+  Renders the predictive search drawer.
+{% endcomment %}
+
+<div id="search-drawer" class="drawer" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="drawer-header">
+    <h2 style="font-size: 1.25rem;">Search Our Gadgets</h2>
+    <button class="drawer-close" aria-label="{{ 'general.accessibility.close' | t }}">&times;</button>
+  </div>
+
+  <div class="drawer-body">
+    <form action="{{ routes.search_url }}" method="get" role="search" style="margin-bottom: 1.5rem;">
+      <div style="position: relative; display: flex; gap: 0.5rem;">
+        <input type="search" name="q" placeholder="{{ 'general.search.placeholder' | t }}" class="predictive-search-input" style="flex:1;" autocomplete="off">
+        <button type="submit" class="btn btn-primary" aria-label="{{ 'general.search.submit' | t }}">Go</button>
+      </div>
+    </form>
+
+    <div id="predictive-search-results" style="margin-top: 1rem;">
+      <!-- Results populated dynamically by theme.js -->
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "title_block": {
+          "type": "title",
+          "settings": {}
+        },
+        "price_block": {
+          "type": "price",
+          "settings": {}
+        },
+        "picker_block": {
+          "type": "variant_picker",
+          "settings": {}
+        },
+        "buy_block": {
+          "type": "buy_buttons",
+          "settings": {}
+        },
+        "description_block": {
+          "type": "description",
+          "settings": {}
+        },
+        "specs_block": {
+          "type": "tech_specifications",
+          "settings": {
+            "specs_text": "Dimensions: 120mm x 80mm x 45mm\nWeight: 145g\nPower Delivery: 65W Max\nConnectivity: Bluetooth 5.2 Low Energy"
+          }
+        },
+        "box_block": {
+          "type": "whats_in_box",
+          "settings": {
+            "content": "- 1x Smartify Finds Premium Device\n- 1x Fast Charge USB-C Cable\n- 1x Magnetic Modular Base\n- 1x Welcome Guide & User Manual"
+          }
+        }
+      },
+      "block_order": [
+        "title_block",
+        "price_block",
+        "picker_block",
+        "buy_block",
+        "description_block",
+        "specs_block",
+        "box_block"
+      ],
+      "settings": {}
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "recommendations"
+  ]
+}

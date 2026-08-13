@@ -1,0 +1,94 @@
+{% comment %}
+  Renders robust structured JSON-LD data for unmatched SEO indexing capability.
+{% endcomment %}
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "WebSite",
+  "name": "{{ shop.name }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ shop.url }}/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "url": "{{ shop.url }}{{ page.url }}"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "{{ shop.name }}",
+  {% if settings.logo %}
+    "logo": "https:{{ settings.logo | image_url: width: 300 }}",
+  {% endif %}
+  "sameAs": [
+    "{{ settings.social_facebook }}",
+    "{{ settings.social_instagram }}",
+    "{{ settings.social_twitter }}",
+    "{{ settings.social_youtube }}"
+  ],
+  "url": "{{ shop.url }}{{ page.url }}"
+}
+</script>
+
+{%- if template contains 'product' -%}
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Product",
+    "name": "{{ product.title | escape }}",
+    "url": "{{ shop.url }}{{ product.url }}",
+    {% if product.featured_media %}
+      "image": [
+        "https:{{ product.featured_media | image_url: width: 1000 }}"
+      ],
+    {% endif %}
+    "description": "{{ product.description | strip_html | escape }}",
+    {% if product.selected_or_first_available_variant.sku != blank %}
+      "sku": "{{ product.selected_or_first_available_variant.sku }}",
+    {% endif %}
+    "brand": {
+      "@type": "Brand",
+      "name": "{{ product.vendor | escape }}"
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "{{ cart.currency.iso_code }}",
+      "price": "{{ product.selected_or_first_available_variant.price | money_without_currency | replace: ',', '' }}",
+      "availability": "http://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}",
+      "url": "{{ shop.url }}{{ product.selected_or_first_available_variant.url }}"
+    }
+  }
+  </script>
+{%- elsif template contains 'article' -%}
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "articleBody": "{{ article.content | strip_html | escape }}",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "{{ shop.url }}{{ article.url }}"
+    },
+    "headline": "{{ article.title | escape }}",
+    {% if article.image %}
+      "image": [
+        "https:{{ article.image | image_url: width: 1000 }}"
+      ],
+    {% endif %}
+    "datePublished": "{{ article.published_at | date: '%Y-%m-%dT%H:%M:%SZ' }}",
+    "dateCreated": "{{ article.created_at | date: '%Y-%m-%dT%H:%M:%SZ' }}",
+    "author": {
+      "@type": "Person",
+      "name": "{{ article.author | escape }}"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ shop.name | escape }}"
+    }
+  }
+  </script>
+{%- endif -%}

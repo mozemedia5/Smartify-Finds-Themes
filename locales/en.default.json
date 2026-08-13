@@ -1,0 +1,59 @@
+{
+  "general": {
+    "search": {
+      "placeholder": "Search Smartify Finds...",
+      "no_results": "No results found for \"{{ terms }}\".",
+      "submit": "Submit search",
+      "heading": "Search Results",
+      "predictive_title": "Products found"
+    },
+    "cart": {
+      "title": "Your Shopping Cart",
+      "empty": "Your cart is empty.",
+      "continue_shopping": "Continue Shopping",
+      "subtotal": "Subtotal",
+      "checkout": "Proceed to Checkout",
+      "remove": "Remove",
+      "quantity": "Quantity",
+      "add_to_cart": "Add to Cart",
+      "added_to_cart": "Added to Cart",
+      "sold_out": "Sold Out",
+      "unavailable": "Unavailable",
+      "view_cart": "View Cart",
+      "shipping_note": "Tax and shipping calculated at checkout."
+    },
+    "accessibility": {
+      "skip_to_content": "Skip to content",
+      "close": "Close",
+      "open_menu": "Open menu",
+      "close_menu": "Close menu"
+    },
+    "newsletter": {
+      "placeholder": "Enter your email for gadget updates",
+      "button": "Subscribe",
+      "success": "Thank you for subscribing! Welcome to the future of discovery.",
+      "error": "Please enter a valid email address."
+    },
+    "products": {
+      "sale": "SALE",
+      "new": "NEW",
+      "best_seller": "BEST SELLER",
+      "price": "Price",
+      "compare_at": "Compare at price",
+      "regular_price": "Regular price",
+      "specifications": "Technical Specifications",
+      "whats_in_box": "What's in the box",
+      "how_it_works": "How it works",
+      "quantity_label": "Quantity",
+      "add_success": "Product added to cart!",
+      "complementary": "Complementary Products",
+      "related": "You May Also Like"
+    },
+    "breadcrumbs": {
+      "home": "Home",
+      "shop": "Shop",
+      "collections": "Collections",
+      "blog": "Blog"
+    }
+  }
+}

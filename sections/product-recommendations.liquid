@@ -1,0 +1,52 @@
+{% comment %}
+  Renders related products on the product details page using Shopify's native recommendation engine.
+{% endcomment %}
+
+<section style="background-color: var(--color-bg-secondary); border-top: 1px solid var(--color-border); padding: 5rem 0;">
+  <div class="container">
+
+    <div style="margin-bottom: 3rem;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;">
+        RECOMMENDED DISCOVERIES
+      </span>
+      <h2 style="font-size: 2rem; font-weight: 900;">
+        {{ 'general.products.related' | t }}
+      </h2>
+    </div>
+
+    <!-- Recommendations container -->
+    <div class="grid grid-4" id="ProductRecommendations" data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit=4">
+      {%- if recommendations.performed and recommendations.products_count > 0 -%}
+        {%- for recommended_product in recommendations.products -%}
+          {% render 'product-card', product: recommended_product %}
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const rEl = document.getElementById('ProductRecommendations');
+    if (!rEl) return;
+    const url = rEl.dataset.url;
+    fetch(url)
+    .then(res => res.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const innerRecommendations = doc.getElementById('ProductRecommendations');
+      if (innerRecommendations && innerRecommendations.innerHTML.trim().length > 0) {
+        rEl.innerHTML = innerRecommendations.innerHTML;
+      }
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Product Recommendations",
+  "settings": []
+}
+{% endschema %}

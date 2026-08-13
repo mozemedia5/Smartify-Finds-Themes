@@ -1,0 +1,78 @@
+<section style="background-color: var(--color-bg-primary); padding: 5rem 0;">
+  <div class="container">
+
+    <!-- Title Area -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;">
+          {{ section.settings.subheading | escape }}
+        </span>
+        <h2 style="font-size: 2.25rem; font-weight: 900;">
+          {{ section.settings.title | escape }}
+        </h2>
+      </div>
+      {%- if section.settings.collection != blank -%}
+        <a href="{{ section.settings.collection.url }}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+          View All
+        </a>
+      {%- endif -%}
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-4">
+      {%- if section.settings.collection != blank and section.settings.collection.products.size > 0 -%}
+        {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
+          {% render 'product-card', product: product %}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..section.settings.products_to_show) -%}
+          <div class="tech-card" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="background-color: var(--color-bg-primary); aspect-ratio: 1/1; border-radius: var(--border-radius); display: flex; align-items: center; justify-content: center;">
+              {{ 'product-' | append: i | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+            <div>
+              <span style="font-size: 0.85rem; color: var(--color-accent);">Smartify Finds</span>
+              <h3 style="font-size: 1.1rem; margin-top: 0.25rem;">Demo Futuristic Device {{ i }}</h3>
+              <p style="font-weight: 600; color: var(--color-text-primary); margin-top: 0.5rem;">$199.00</p>
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured Collection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Featured Futuristic Gadgets"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "SYSTEM SELECTIONS"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4,
+      "label": "Number of products to show"
+    }
+  ]
+}
+{% endschema %}
