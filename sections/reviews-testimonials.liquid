@@ -1,0 +1,78 @@
+<section style="background-color: var(--color-bg-primary); padding: 5rem 0;">
+  <div class="container">
+
+    <div style="text-align: center; max-width: 650px; margin: 0 auto 4rem auto;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.1em;">
+        Verified Customer Satisfaction
+      </span>
+      <h2 style="font-size: 2.25rem; font-weight: 900; margin-top: 0.5rem; margin-bottom: 1rem;">
+        What Tech Enthusiasts Say
+      </h2>
+      <p class="text-secondary">
+        Honest, verified testimonials from real users discovering our curated gadgets.
+      </p>
+    </div>
+
+    <div class="grid grid-3">
+      {%- for block in section.blocks -%}
+        <div class="tech-card" {{ block.shopify_attributes }} style="display: flex; flex-direction: column; justify-content: space-between; min-height: 220px;">
+          <div>
+            <div style="color: #fbbf24; font-size: 1.1rem; margin-bottom: 1rem;">★★★★★</div>
+            <p style="font-style: italic; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem; color: var(--color-text-primary);">
+              "{{ block.settings.quote | escape }}"
+            </p>
+          </div>
+          <div>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-accent);">{{ block.settings.author | escape }}</h4>
+            <p style="font-size: 0.8rem; color: var(--color-text-secondary);">{{ block.settings.title | escape }}</p>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Reviews & Testimonials",
+  "settings": [],
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote",
+          "default": "This smart charger completely transformed my workspace ecosystem. The build quality feels ultra premium and fits perfectly into my tech setup."
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Author Name",
+          "default": "Alex Mercer"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Author Title",
+          "default": "Verified Customer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reviews & Testimonials",
+      "blocks": [
+        { "type": "testimonial", "settings": { "quote": "The low-latency audio transmitters are incredible. Perfectly synced audio stream with top-tier aesthetic design.", "author": "Elena Rostova", "title": "Developer / Tech Reviewer" } },
+        { "type": "testimonial", "settings": { "quote": "Smartify Finds curated selections are phenomenal. Quick checkout and secure packaging. Truly premium.", "author": "Marcus Thorne", "title": "Hardware Lead" } },
+        { "type": "testimonial", "settings": { "quote": "Outstanding build quality on the smart-home controller. High level of polish and extremely straightforward to set up.", "author": "Sarah Lin", "title": "Designer" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

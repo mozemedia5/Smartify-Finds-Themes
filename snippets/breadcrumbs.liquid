@@ -1,0 +1,77 @@
+{% comment %}
+  Renders schema-structured responsive breadcrumbs for ultimate technical SEO and smooth site hierarchy.
+{% endcomment %}
+
+{%- unless template == 'index' or template == 'cart' or template == '404' -%}
+<nav class="container" aria-label="breadcrumbs" style="padding-top: 1rem; padding-bottom: 1rem; font-size: 0.85rem; color: var(--color-text-secondary);">
+  <ol style="list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;" itemscope itemtype="https://schema.org/BreadcrumbList">
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a href="{{ routes.root_url }}" itemprop="item" style="color: var(--color-text-secondary);">
+        <span itemprop="name">{{ 'general.breadcrumbs.home' | t }}</span>
+      </a>
+      <meta itemprop="position" content="1">
+    </li>
+    <li style="user-select: none;">/</li>
+
+    {%- if template contains 'page' -%}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ page.url }}" aria-current="page" itemprop="item" style="color: var(--color-accent);">
+          <span itemprop="name">{{ page.title }}</span>
+        </a>
+        <meta itemprop="position" content="2">
+      </li>
+    {%- elsif template contains 'product' -%}
+      {%- if collection -%}
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="{{ collection.url }}" itemprop="item" style="color: var(--color-text-secondary);">
+            <span itemprop="name">{{ collection.title }}</span>
+          </a>
+          <meta itemprop="position" content="2">
+        </li>
+        <li style="user-select: none;">/</li>
+      {%- endif -%}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ product.url }}" aria-current="page" itemprop="item" style="color: var(--color-accent);">
+          <span itemprop="name">{{ product.title }}</span>
+        </a>
+        <meta itemprop="position" content="{% if collection %}3{% else %}2{% endif %}">
+      </li>
+    {%- elsif template contains 'collection' and collection.handle -%}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ collection.url }}" aria-current="page" itemprop="item" style="color: var(--color-accent);">
+          <span itemprop="name">{{ collection.title }}</span>
+        </a>
+        <meta itemprop="position" content="2">
+      </li>
+    {%- elsif template contains 'blog' -%}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ blog.url }}" aria-current="page" itemprop="item" style="color: var(--color-accent);">
+          <span itemprop="name">{{ blog.title }}</span>
+        </a>
+        <meta itemprop="position" content="2">
+      </li>
+    {%- elsif template contains 'article' -%}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ blog.url }}" itemprop="item" style="color: var(--color-text-secondary);">
+          <span itemprop="name">{{ blog.title }}</span>
+        </a>
+        <meta itemprop="position" content="2">
+      </li>
+      <li style="user-select: none;">/</li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ article.url }}" aria-current="page" itemprop="item" style="color: var(--color-accent);">
+          <span itemprop="name">{{ article.title }}</span>
+        </a>
+        <meta itemprop="position" content="3">
+      </li>
+    {%- else -%}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ request.path }}" aria-current="page" itemprop="item" style="color: var(--color-accent);">
+          <span itemprop="name">{{ page_title }}</span>
+        </a>
+        <meta itemprop="position" content="2">
+      </li>
+    {%- endif -%}
+  </ol>
+</nav>
+{%- endunless -%}

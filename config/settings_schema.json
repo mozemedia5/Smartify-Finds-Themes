@@ -1,0 +1,173 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Smartify Finds Theme",
+    "theme_version": "1.0.0",
+    "theme_author": "Smartify Finds Team",
+    "theme_documentation_url": "https://github.com/smartifyfinds_themes",
+    "theme_support_url": "https://github.com/smartifyfinds_themes"
+  },
+  {
+    "name": "Brand Identity",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Store Logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon"
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "min": 50,
+        "max": 250,
+        "step": 10,
+        "default": 120,
+        "unit": "px",
+        "label": "Logo width"
+      }
+    ]
+  },
+  {
+    "name": "Global Colors (Futuristic/Premium Tech)",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_bg_primary",
+        "label": "Primary Background",
+        "default": "#0b0f19"
+      },
+      {
+        "type": "color",
+        "id": "color_bg_secondary",
+        "label": "Secondary Background",
+        "default": "#131b2e"
+      },
+      {
+        "type": "color",
+        "id": "color_text_primary",
+        "label": "Primary Text",
+        "default": "#f3f4f6"
+      },
+      {
+        "type": "color",
+        "id": "color_text_secondary",
+        "label": "Secondary Text",
+        "default": "#9ca3af"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Accent Blue/Cyan",
+        "default": "#00f0ff"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_purple",
+        "label": "Accent Purple/Neon",
+        "default": "#a855f7"
+      },
+      {
+        "type": "color",
+        "id": "color_border",
+        "label": "Borders",
+        "default": "#1f2937"
+      },
+      {
+        "type": "color",
+        "id": "color_sale_badge",
+        "label": "Sale Badge",
+        "default": "#00f0ff"
+      },
+      {
+        "type": "color",
+        "id": "color_new_badge",
+        "label": "New Badge",
+        "default": "#10b981"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "font_heading",
+        "label": "Heading Font",
+        "default": "sans-serif"
+      },
+      {
+        "type": "font_picker",
+        "id": "font_body",
+        "label": "Body Font",
+        "default": "sans-serif"
+      }
+    ]
+  },
+  {
+    "name": "Layout Settings",
+    "settings": [
+      {
+        "type": "range",
+        "id": "container_max_width",
+        "min": 1000,
+        "max": 1600,
+        "step": 50,
+        "default": 1300,
+        "unit": "px",
+        "label": "Max Container Width"
+      },
+      {
+        "type": "range",
+        "id": "border_radius",
+        "min": 0,
+        "max": 24,
+        "step": 2,
+        "default": 8,
+        "unit": "px",
+        "label": "Global Border Radius"
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_quick_add",
+        "label": "Enable Quick Add to Cart",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_cart_drawer",
+        "label": "Enable Slide-out Cart Drawer",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Social Media Links",
+    "settings": [
+      {
+        "type": "text",
+        "id": "social_facebook",
+        "label": "Facebook URL"
+      },
+      {
+        "type": "text",
+        "id": "social_instagram",
+        "label": "Instagram URL"
+      },
+      {
+        "type": "text",
+        "id": "social_twitter",
+        "label": "Twitter/X URL"
+      },
+      {
+        "type": "text",
+        "id": "social_youtube",
+        "label": "YouTube URL"
+      }
+    ]
+  }
+]

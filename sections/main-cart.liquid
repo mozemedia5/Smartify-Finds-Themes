@@ -1,0 +1,88 @@
+<section class="container" style="padding-top: 3rem; padding-bottom: 5rem;">
+  <h1 style="font-size: 2.5rem; font-weight: 900; margin-bottom: 2rem;">
+    {{ 'general.cart.title' | t }}
+  </h1>
+
+  {%- if cart.item_count == 0 -%}
+    <div style="text-align: center; padding: 5rem 0;">
+      <p class="text-secondary" style="font-size: 1.25rem; margin-bottom: 2rem;">
+        {{ 'general.cart.empty' | t }}
+      </p>
+      <a href="{{ routes.all_products_collection_url }}" class="btn btn-primary">
+        {{ 'general.cart.continue_shopping' | t }}
+      </a>
+    </div>
+  {%- else -%}
+    <form action="{{ routes.cart_url }}" method="post" novalidate style="display: grid; grid-template-columns: 2fr 1fr; gap: 4rem; @media(max-width:992px){ grid-template-columns:1fr; }">
+
+      <!-- Cart Items -->
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {%- for item in cart.items -%}
+          <div style="display: flex; gap: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); align-items: center;">
+            <img src="{{ item.image | image_url: width: 120 }}"
+                 alt="{{ item.title | escape }}"
+                 width="120"
+                 height="120"
+                 style="object-fit: cover; border-radius: var(--border-radius);">
+
+            <div style="flex: 1;">
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ item.product.title }}</h3>
+              {%- unless item.product.has_only_default_variant -%}
+                <p class="text-secondary" style="font-size: 0.9rem; margin-bottom: 0.5rem;">{{ item.variant.title }}</p>
+              {%- endunless -%}
+
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span class="text-secondary" style="font-size: 0.9rem;">Qty:</span>
+                  <input type="number" name="updates[]" id="updates_{{ item.key }}" value="{{ item.quantity }}" min="0" style="width: 70px;">
+                </div>
+                <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity=0" style="color: var(--color-accent-purple); font-size: 0.9rem; font-weight: 600;">
+                  {{ 'general.cart.remove' | t }}
+                </a>
+              </div>
+            </div>
+
+            <div style="text-align: right;">
+              <span style="font-size: 1.2rem; font-weight: 700; color: var(--color-accent);">{{ item.final_line_price | money }}</span>
+            </div>
+          </div>
+        {%- endfor -%}
+
+        <!-- Update controls -->
+        <div style="text-align: right; margin-top: 1rem;">
+          <button type="submit" class="btn btn-secondary">Update Quantities</button>
+        </div>
+      </div>
+
+      <!-- Order Summary Card -->
+      <div class="tech-card" style="height: fit-content; display: flex; flex-direction: column; gap: 1.5rem;">
+        <h3 style="font-size: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">Summary</h3>
+
+        <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 1.1rem;">
+          <span>{{ 'general.cart.subtotal' | t }}</span>
+          <span style="color: var(--color-accent); font-size: 1.3rem; font-weight: 800;">{{ cart.total_price | money }}</span>
+        </div>
+
+        <p class="text-secondary" style="font-size: 0.85rem; line-height: 1.5;">
+          {{ 'general.cart.shipping_note' | t }}
+        </p>
+
+        <button type="submit" name="checkout" class="btn btn-primary" style="width: 100%;">
+          {{ 'general.cart.checkout' | t }}
+        </button>
+
+        <a href="{{ routes.all_products_collection_url }}" class="text-center" style="font-size: 0.9rem; font-weight: 600;">
+          {{ 'general.cart.continue_shopping' | t }}
+        </a>
+      </div>
+
+    </form>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Cart Page",
+  "settings": []
+}
+{% endschema %}

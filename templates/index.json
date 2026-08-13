@@ -1,0 +1,31 @@
+{
+  "sections": {
+    "hero": {
+      "type": "main-hero",
+      "settings": {}
+    },
+    "featured": {
+      "type": "featured-collection",
+      "settings": {}
+    },
+    "features": {
+      "type": "tech-features",
+      "settings": {}
+    },
+    "testimonials": {
+      "type": "reviews-testimonials",
+      "settings": {}
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "featured",
+    "features",
+    "testimonials",
+    "newsletter"
+  ]
+}

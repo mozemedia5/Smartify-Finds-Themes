@@ -1,0 +1,101 @@
+<header style="background-color: rgba(11, 15, 25, 0.9); backdrop-filter: blur(8px); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 100;">
+  <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 80px;">
+
+    <!-- Logo -->
+    <a href="{{ routes.root_url }}" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+      {%- if section.settings.logo != blank -%}
+        <img src="{{ section.settings.logo | image_url: width: section.settings.logo_width }}"
+             alt="{{ shop.name }}"
+             width="{{ section.settings.logo_width }}"
+             height="auto"
+             style="display: block;">
+      {%- else -%}
+        <span style="font-size: 1.5rem; font-weight: 800; tracking: -0.05em; color: var(--color-text-primary); display: flex; align-items: center; gap: 0.25rem;">
+          SMARTIFY <span style="color: var(--color-accent); font-weight: 400;">FINDS</span>
+        </span>
+      {%- endif -%}
+    </a>
+
+    <!-- Navigation Menu (Desktop) -->
+    <nav class="hide-mobile" role="navigation">
+      <ul style="display: flex; list-style: none; gap: 2rem;">
+        {%- for link in section.settings.menu.links -%}
+          <li>
+            <a href="{{ link.url }}" style="color: {% if link.active %}var(--color-accent){% else %}var(--color-text-primary){% endif %}; font-weight: 500; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">
+              {{ link.title }}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    <!-- Icons / CTA area -->
+    <div style="display: flex; align-items: center; gap: 1.25rem;">
+      <!-- Predictive Search Trigger -->
+      <button class="search-trigger" style="background: none; border: none; color: var(--color-text-primary); cursor: pointer;" aria-label="Search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </button>
+
+      <!-- Cart Trigger -->
+      <a href="{{ routes.cart_url }}" class="cart-icon-trigger" style="position: relative; display: flex; align-items: center; color: var(--color-text-primary);" aria-label="Cart">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span class="cart-count-bubble" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-purple) 100%); color: #000; font-size: 0.7rem; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: {% if cart.item_count > 0 %}flex{% else %}none{% endif %}; align-items: center; justify-content: center;">
+          {{ cart.item_count }}
+        </span>
+      </a>
+
+      <!-- Hamburger Menu (Mobile) -->
+      <button class="mobile-menu-trigger hide-desktop" style="background: none; border: none; color: var(--color-text-primary); cursor: pointer;" aria-label="Open Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Navigation Menu Drawer -->
+<div id="mobile-menu" class="drawer" aria-hidden="true" role="dialog">
+  <div class="drawer-header">
+    <h2 style="font-size: 1.25rem;">Navigation</h2>
+    <button class="drawer-close" aria-label="Close Menu">&times;</button>
+  </div>
+  <div class="drawer-body">
+    <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem;">
+      {%- for link in section.settings.menu.links -%}
+        <li>
+          <a href="{{ link.url }}" style="font-size: 1.2rem; font-weight: 600; text-transform: uppercase; color: var(--color-text-primary); display: block; border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">
+            {{ link.title }}
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Custom Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "default": 120,
+      "unit": "px",
+      "label": "Logo Width"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Main Navigation Menu",
+      "default": "main-menu"
+    }
+  ]
+}
+{% endschema %}
