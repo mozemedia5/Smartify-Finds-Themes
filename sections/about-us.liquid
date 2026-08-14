@@ -1,0 +1,180 @@
+<section style="background-color: var(--color-bg-secondary); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: 6rem 0; position: relative; overflow: hidden;">
+
+  <!-- Subtle tech aesthetics decoration background -->
+  <div style="position: absolute; top: 10%; right: -5%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%); pointer-events: none; z-index: 1;"></div>
+
+  <div class="container" style="position: relative; z-index: 5;">
+    <div style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 4.5rem; align-items: center;" class="about-grid">
+
+      <!-- Column 1: Aesthetic Side Image with high-tech badge overlay -->
+      <div style="position: relative; order: {% if section.settings.image_position == 'right' %}1{% else %}2{% endif %};" class="about-image-col">
+        <div style="position: absolute; inset: -4px; background: linear-gradient(135deg, var(--color-accent-purple) 0%, var(--color-accent) 100%); border-radius: var(--border-radius); opacity: 0.4; filter: blur(10px); z-index: -1;"></div>
+
+        {%- if section.settings.image != blank -%}
+          <img src="{{ section.settings.image | image_url: width: 800 }}"
+               alt="{{ section.settings.heading | escape }}"
+               width="800"
+               height="600"
+               loading="lazy"
+               style="display: block; width: 100%; border-radius: var(--border-radius); border: 1.5px solid var(--color-border); object-fit: cover; aspect-ratio: 4/3;">
+        {%- else -%}
+          <!-- Interactive, stylized tech SVG graphic placeholder representing smartphones, wellness, beauty tech -->
+          <div style="background-color: var(--color-bg-primary); width: 100%; aspect-ratio: 4/3; border-radius: var(--border-radius); border: 1px solid var(--color-border); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2.5rem; text-align: center;">
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
+              <!-- Phone icon -->
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-accent);"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <!-- Heart rate / Wellness icon -->
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-accent-purple);"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+              <!-- Beauty / Sparkle icon -->
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-accent);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+            </div>
+            <span style="font-size: 1.2rem; font-weight: 800; color: var(--color-text-primary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">SMARTIFY CORE ECOSYSTEM</span>
+            <span style="font-size: 0.85rem; color: var(--color-text-secondary); max-width: 320px; line-height: 1.5;">Calibrated to supply elite smartphone innovations, smart lifestyle gadgets, wellness monitors, and modern beauty electronics.</span>
+          </div>
+        {%- endif -%}
+
+        <!-- Interactive float badge -->
+        <div style="position: absolute; bottom: -20px; right: 20px; background-color: rgba(11, 15, 25, 0.95); border: 1px solid var(--color-accent); padding: 1rem 1.5rem; border-radius: 8px; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <span style="width: 10px; height: 10px; background-color: var(--color-accent); border-radius: 50%; display: inline-block; animation: pulse 2s infinite;"></span>
+          <span style="font-size: 0.85rem; font-weight: 700; color: var(--color-text-primary); letter-spacing: 0.05em; text-transform: uppercase;">100% QUALITY ASSURED</span>
+        </div>
+      </div>
+
+      <!-- Column 2: Rich text brand details -->
+      <div style="order: {% if section.settings.image_position == 'right' %}2{% else %}1{% endif %};">
+        {%- if section.settings.sub_heading != blank -%}
+          <span style="font-size: 0.85rem; font-weight: 700; color: var(--color-accent-purple); text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 1rem;">
+            {{ section.settings.sub_heading | escape }}
+          </span>
+        {%- endif -%}
+
+        <h2 class="glow-text" style="font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 900; line-height: 1.2; margin-bottom: 1.5rem; letter-spacing: -0.02em;">
+          {{ section.settings.heading | escape }}
+        </h2>
+
+        <div style="color: var(--color-text-secondary); line-height: 1.7; font-size: 1.05rem; margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+          {{ section.settings.content }}
+        </div>
+
+        <!-- Featured Pillars / Values list (Gadgets categories) -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;" class="about-pillars">
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <div style="background-color: rgba(0, 240, 255, 0.08); border: 1px solid var(--color-accent); padding: 0.5rem; border-radius: 6px; color: var(--color-accent); display: flex; align-items: center; justify-content: center;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+            </div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.03em;">SMART GADGETS</h4>
+              <p style="font-size: 0.8rem; color: var(--color-text-secondary);">Latest flagship phones, tablet gadgets, and premium tech.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <div style="background-color: rgba(168, 85, 247, 0.08); border: 1px solid var(--color-accent-purple); padding: 0.5rem; border-radius: 6px; color: var(--color-accent-purple); display: flex; align-items: center; justify-content: center;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+            </div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.03em;">HEALTH & WELLNESS</h4>
+              <p style="font-size: 0.8rem; color: var(--color-text-secondary);">Intelligent fitness monitors, smart health trackers, lifestyle tech.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <div style="background-color: rgba(16, 185, 129, 0.08); border: 1px solid var(--color-new-badge); padding: 0.5rem; border-radius: 6px; color: var(--color-new-badge); display: flex; align-items: center; justify-content: center;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            </div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.03em;">BEAUTY TECH</h4>
+              <p style="font-size: 0.8rem; color: var(--color-text-secondary);">Advanced skin-tech discoveries, facial massagers, intelligent grooming.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <div style="background-color: rgba(0, 240, 255, 0.08); border: 1px solid var(--color-accent); padding: 0.5rem; border-radius: 6px; color: var(--color-accent); display: flex; align-items: center; justify-content: center;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.03em;">FUTURE-READY</h4>
+              <p style="font-size: 0.8rem; color: var(--color-text-secondary);">Direct premium sourcing, maximum performance guarantees, top ratings.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.6; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.6; }
+  }
+
+  @media (max-width: 991px) {
+    .about-grid {
+      grid-template-columns: 1fr !important;
+      gap: 3.5rem !important;
+    }
+    .about-image-col {
+      order: 2 !important;
+    }
+    .about-pillars {
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "About Brand & Vision",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Side Representative Image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image Desktop Alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left Column"
+        },
+        {
+          "value": "right",
+          "label": "Right Column"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "sub_heading",
+      "label": "Top Tagline/Sub-heading",
+      "default": "WHO WE ARE & OUR TECH VISION"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Formulating the Ultimate Smart Living Ecosystem"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "About Content Text",
+      "default": "<p>Welcome to <strong>Smartify Finds</strong>, your premier curation destination dedicated to providing maximum-efficiency smart gadgets, modern technology discoveries, and high-performance electronic essentials. Our store is custom calibrated for the tech enthusiast who demands unmatched productivity benefits, pristine aesthetics, and flawless utility.</p><p>We specialize in the modern trifecta of gadget living: flagship smartphones and electronic utilities, intelligent health and wellness trackers, and breakthrough advanced beauty tech gadgets that elevate daily routines. Every single device we offer is hand-sought, strictly certified, and integrated directly for optimal quality.</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "About Brand & Vision"
+    }
+  ]
+}
+{% endschema %}
