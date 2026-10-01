@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
-import { DiseaseDiagnosis } from '../types';
+import { DiseaseDiagnosis, UserRole } from '../types';
 import { SAMPLE_DISEASES } from '../data/mockData';
 import {
-  Bot,
-  Sparkles,
   Send,
   Stethoscope,
   Calculator,
   Upload,
   ShieldAlert,
   CheckCircle,
-  HelpCircle,
   Sprout,
   RefreshCw,
-  Image as ImageIcon,
-  BookOpen,
+  X,
+  MessageSquare,
+  Sparkles,
   ArrowRight
 } from 'lucide-react';
 
@@ -23,17 +21,26 @@ interface ChatMessage {
   sender: 'user' | 'ai';
   text: string;
   timestamp: string;
-  isDiagnosis?: boolean;
-  diagnosisData?: DiseaseDiagnosis;
 }
 
-export const CoFarmerScreen: React.FC = () => {
+interface CoFarmerScreenProps {
+  currentUserRole?: UserRole;
+  setCurrentUserRole?: (role: UserRole) => void;
+}
+
+export const CoFarmerScreen: React.FC<CoFarmerScreenProps> = ({
+  currentUserRole = 'farmer',
+  setCurrentUserRole
+}) => {
   const [activeSubTab, setActiveSubTab] = useState<'chat' | 'crop_doctor' | 'calculators'>('chat');
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(true);
+
+  // Gemini Style Chat State
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
       sender: 'ai',
-      text: 'Jambo & Hello! I am your AI CoFarmer assistant for Uganda. How can I help with your crops, livestock, fertilizer calculations, or pest protection today?',
+      text: 'Hello! I am CoFarmer, your agricultural assistant for Uganda. How can I assist with your crops, soil health, fertilizer calculations, or pest protection today?',
       timestamp: 'Just now'
     }
   ]);
@@ -42,16 +49,39 @@ export const CoFarmerScreen: React.FC = () => {
 
   // Crop Doctor Diagnosis state
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiseaseDiagnosis | null>(SAMPLE_DISEASES[0]);
-  const [uploadedImagePreview, setUploadedImagePreview] = useState<string | null>(null);
   const [isDiagnosing, setIsDiagnosing] = useState(false);
 
   // Calculator states
   const [farmAcres, setFarmAcres] = useState<number>(2);
   const [selectedCropCalc, setSelectedCropCalc] = useState<'Maize' | 'Beans' | 'Coffee' | 'Tomatoes'>('Maize');
 
+  // Restrict feature if user is strictly buyer
+  if (currentUserRole === 'buyer') {
+    return (
+      <div className="bg-white border border-slate-200 rounded-3xl p-8 max-w-xl mx-auto my-10 text-center space-y-4 shadow-sm">
+        <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto">
+          <Sprout className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-extrabold text-slate-900">CoFarmer is for Farmers, Experts & Sellers</h2>
+        <p className="text-xs text-slate-600 leading-relaxed">
+          You are currently in <strong>Buyer Mode</strong>. CoFarmer AI tools, crop disease diagnostics, and farm calculators are reserved for sellers, farmers, and agronomy experts.
+        </p>
+        <button
+          onClick={() => setCurrentUserRole && setCurrentUserRole('farmer')}
+          className="px-6 py-3 bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md hover:bg-emerald-800 transition-all"
+        >
+          Switch to Farmer / Seller Mode
+        </button>
+      </div>
+    );
+  }
+
   const handleSendMessage = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!inputQuery.trim()) return;
+
+    // First time user sends a prompt, automatically hide onboarding divs
+    if (showOnboarding) setShowOnboarding(false);
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
@@ -88,7 +118,7 @@ export const CoFarmerScreen: React.FC = () => {
 
       setMessages(prev => [...prev, aiMsg]);
       setIsAiThinking(false);
-    }, 1200);
+    }, 1000);
   };
 
   const handleSimulateDiagnosisUpload = (sampleIndex: number) => {
@@ -96,7 +126,7 @@ export const CoFarmerScreen: React.FC = () => {
     setTimeout(() => {
       setSelectedDiagnosis(SAMPLE_DISEASES[sampleIndex]);
       setIsDiagnosing(false);
-    }, 1000);
+    }, 900);
   };
 
   // Farm Calculations
@@ -117,133 +147,160 @@ export const CoFarmerScreen: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-green-800 text-white rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Cool, Clean Google Gemini App-Styled Header Banner */}
+      <div className="bg-slate-900 text-white rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 border border-slate-800">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-amber-300">
-            <Bot className="w-7 h-7" />
+          {/* Minimal CoFarmer Icon (Good & Minimal, Not Big) */}
+          <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-md flex-shrink-0">
+            <Sprout className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-extrabold">AI CoFarmer & Crop Doctor</h1>
-              <span className="text-[10px] font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full">Gemini Powered</span>
-            </div>
-            <p className="text-xs text-emerald-100 mt-0.5">
-              Instant agricultural guidance, plant disease diagnosis, and smart farm input calculators for Uganda.
+            <h1 className="text-xl font-extrabold tracking-tight">CoFarmer</h1>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Agricultural intelligence, crop diagnostics & farm input calculators for Uganda.
             </p>
           </div>
         </div>
 
-        {/* Sub Navigation Tabs */}
-        <div className="flex items-center bg-black/20 p-1 rounded-xl backdrop-blur-md border border-white/10 text-xs font-bold">
+        {/* Clean Pill Sub Navigation Tabs */}
+        <div className="flex items-center bg-slate-800/90 p-1.5 rounded-2xl border border-slate-700 text-xs font-bold">
           <button
             onClick={() => setActiveSubTab('chat')}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 ${
-              activeSubTab === 'chat' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
+            className={`px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
+              activeSubTab === 'chat' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:text-white'
             }`}
           >
-            <Bot className="w-3.5 h-3.5" />
-            <span>AI Assistant</span>
+            <MessageSquare className="w-4 h-4" />
+            <span>Assistant</span>
           </button>
 
           <button
             onClick={() => setActiveSubTab('crop_doctor')}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 ${
-              activeSubTab === 'crop_doctor' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
+            className={`px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
+              activeSubTab === 'crop_doctor' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:text-white'
             }`}
           >
-            <Stethoscope className="w-3.5 h-3.5 text-rose-500" />
+            <Stethoscope className="w-4 h-4" />
             <span>Crop Doctor</span>
           </button>
 
           <button
             onClick={() => setActiveSubTab('calculators')}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 ${
-              activeSubTab === 'calculators' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
+            className={`px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
+              activeSubTab === 'calculators' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:text-white'
             }`}
           >
-            <Calculator className="w-3.5 h-3.5" />
-            <span>Farm Calc</span>
+            <Calculator className="w-4 h-4" />
+            <span>Calculators</span>
           </button>
         </div>
       </div>
 
-      {/* SUB TAB 1: AI ASSISTANT CHAT */}
+      {/* SUB TAB 1: GEMINI THEMED ASSISTANT CHAT */}
       {activeSubTab === 'chat' && (
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[520px]">
-          {/* Messages Container */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex items-start space-x-2.5 max-w-xl ${
-                  msg.sender === 'user' ? 'ml-auto flex-row-reverse space-x-reverse' : ''
-                }`}
-              >
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${
-                  msg.sender === 'user' ? 'bg-slate-800 text-white' : 'bg-emerald-600 text-white'
-                }`}>
-                  {msg.sender === 'user' ? 'You' : <Bot className="w-5 h-5" />}
-                </div>
-
-                <div className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
-                  msg.sender === 'user'
-                    ? 'bg-emerald-700 text-white rounded-tr-none'
-                    : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none shadow-sm'
-                }`}>
-                  <p>{msg.text}</p>
-                  <span className={`block text-[9px] mt-1 text-right ${
-                    msg.sender === 'user' ? 'text-emerald-200' : 'text-slate-400'
-                  }`}>
-                    {msg.timestamp}
-                  </span>
+        <div className="space-y-4">
+          {/* First-Time User Onboarding Guidance Div (Removable/Dismissible) */}
+          {showOnboarding && (
+            <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-2xl p-4 flex items-start justify-between gap-3 text-xs text-emerald-900 relative">
+              <div className="flex items-start space-x-3">
+                <Sprout className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-extrabold text-emerald-900">Welcome to CoFarmer</h4>
+                  <p className="text-slate-700 mt-0.5 leading-relaxed">
+                    Ask questions about crop diseases, recommended fertilizers for Uganda soils, planting schedules, or weather advisories.
+                  </p>
                 </div>
               </div>
-            ))}
-
-            {isAiThinking && (
-              <div className="flex items-center space-x-2 text-xs text-slate-500 italic">
-                <Bot className="w-4 h-4 text-emerald-600 animate-spin" />
-                <span>AI CoFarmer is thinking...</span>
-              </div>
-            )}
-          </div>
-
-          {/* Quick Prompts Bar */}
-          <div className="bg-slate-100/80 border-t border-slate-200 p-2.5 flex items-center space-x-2 overflow-x-auto text-[11px]">
-            <span className="font-bold text-slate-500 flex-shrink-0">Suggested:</span>
-            {[
-              'How to treat Fall Armyworm in Maize?',
-              'Best fertilizer rate for 2 acres Beans?',
-              'How to prevent Coffee Wilt disease?'
-            ].map((q, idx) => (
               <button
-                key={idx}
-                onClick={() => { setInputQuery(q); }}
-                className="px-2.5 py-1 bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 rounded-full font-medium whitespace-nowrap transition-colors"
+                onClick={() => setShowOnboarding(false)}
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+                title="Dismiss Onboarding"
               >
-                {q}
+                <X className="w-4 h-4" />
               </button>
-            ))}
-          </div>
+            </div>
+          )}
 
-          {/* Input Bar */}
-          <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-slate-200 flex items-center space-x-2">
-            <input
-              type="text"
-              value={inputQuery}
-              onChange={(e) => setInputQuery(e.target.value)}
-              placeholder="Ask AI CoFarmer anything about crops, pests, fertilizers, livestock..."
-              className="flex-1 p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
-            />
-            <button
-              type="submit"
-              disabled={!inputQuery.trim()}
-              className="p-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl shadow-sm transition-colors"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </form>
+          {/* Gemini Style Chat Window - Spacious, Big Page Area */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-xl overflow-hidden flex flex-col min-h-[580px]">
+            {/* Message Feed Area */}
+            <div className="flex-1 p-6 overflow-y-auto space-y-6 bg-slate-950/40">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex items-start space-x-3 max-w-2xl ${
+                    msg.sender === 'user' ? 'ml-auto flex-row-reverse space-x-reverse' : ''
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                    msg.sender === 'user' ? 'bg-slate-700 text-white' : 'bg-emerald-600 text-white'
+                  }`}>
+                    {msg.sender === 'user' ? 'You' : <Sprout className="w-4 h-4" />}
+                  </div>
+
+                  <div className={`p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                    msg.sender === 'user'
+                      ? 'bg-emerald-700 text-white rounded-tr-none'
+                      : 'bg-slate-800 text-slate-100 border border-slate-700 rounded-tl-none shadow-sm'
+                  }`}>
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                    <span className={`block text-[10px] mt-2 text-right ${
+                      msg.sender === 'user' ? 'text-emerald-200' : 'text-slate-400'
+                    }`}>
+                      {msg.timestamp}
+                    </span>
+                  </div>
+                </div>
+              ))}
+
+              {isAiThinking && (
+                <div className="flex items-center space-x-2 text-xs text-emerald-400 italic">
+                  <RefreshCw className="w-4 h-4 animate-spin text-emerald-500" />
+                  <span>CoFarmer is generating answer...</span>
+                </div>
+              )}
+            </div>
+
+            {/* BIG PROMPT SUGGESTION PILLS (Gemini Style) */}
+            <div className="bg-slate-900 border-t border-slate-800 p-3.5 px-6 overflow-x-auto">
+              <span className="text-[11px] font-bold text-slate-400 block mb-2">Popular Prompt Suggestions:</span>
+              <div className="flex items-center space-x-2 pb-1 scrollbar-none">
+                {[
+                  'How to treat Fall Armyworm in Maize?',
+                  'Best fertilizer rate for 2 acres Beans in Uganda?',
+                  'How to prevent Coffee Wilt & Leaf Rust disease?',
+                  'What is the ideal spacing for grafted orange seedlings?'
+                ].map((q, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => { setInputQuery(q); }}
+                    className="px-4 py-2 bg-slate-800 hover:bg-emerald-950/80 text-slate-200 border border-slate-700 hover:border-emerald-600 rounded-2xl text-xs font-semibold whitespace-nowrap transition-all flex items-center space-x-1"
+                  >
+                    <span>{q}</span>
+                    <ArrowRight className="w-3 h-3 text-slate-500" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Spacious Gemini Input Field */}
+            <form onSubmit={handleSendMessage} className="p-4 bg-slate-900 border-t border-slate-800 flex items-center space-x-3">
+              <input
+                type="text"
+                value={inputQuery}
+                onChange={(e) => setInputQuery(e.target.value)}
+                placeholder="Ask CoFarmer anything about crops, soil health, fertilizers, livestock..."
+                className="flex-1 p-3.5 text-xs sm:text-sm bg-slate-950 border border-slate-800 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-all"
+              />
+              <button
+                type="submit"
+                disabled={!inputQuery.trim()}
+                className="p-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-2xl shadow-lg transition-all"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
@@ -251,18 +308,18 @@ export const CoFarmerScreen: React.FC = () => {
       {activeSubTab === 'crop_doctor' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Upload & Sample Selector Box */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
             <div>
               <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
                 <Stethoscope className="w-5 h-5 text-rose-500" />
                 <span>Crop Disease Image Diagnosis</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Upload or select a affected crop leaf photo to analyze symptoms with AI.
+                Upload or select an affected crop leaf photo to analyze symptoms.
               </p>
             </div>
 
-            {/* Drag Drop Simulator Box */}
+            {/* Drag Drop Box */}
             <div className="border-2 border-dashed border-emerald-300 bg-emerald-50/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-2 hover:bg-emerald-50 transition-colors cursor-pointer">
               <Upload className="w-8 h-8 text-emerald-600" />
               <div>
@@ -304,11 +361,11 @@ export const CoFarmerScreen: React.FC = () => {
           </div>
 
           {/* Diagnosis Results Card */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
             {isDiagnosing ? (
               <div className="h-64 flex flex-col items-center justify-center text-center space-y-3">
                 <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
-                <p className="text-xs font-bold text-slate-700">Analyzing plant image with Gemini AI...</p>
+                <p className="text-xs font-bold text-slate-700">Analyzing plant image...</p>
               </div>
             ) : selectedDiagnosis ? (
               <div className="space-y-4">
@@ -321,7 +378,7 @@ export const CoFarmerScreen: React.FC = () => {
                     <p className="text-xs text-slate-500">Target Crop: {selectedDiagnosis.cropName}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-slate-400 font-semibold">AI Match</span>
+                    <span className="text-xs text-slate-400 font-semibold">Match Rate</span>
                     <p className="text-base font-black text-emerald-700">{selectedDiagnosis.confidence}%</p>
                   </div>
                 </div>
@@ -372,7 +429,7 @@ export const CoFarmerScreen: React.FC = () => {
 
       {/* SUB TAB 3: FARM CALCULATOR TOOLS */}
       {activeSubTab === 'calculators' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm max-w-2xl mx-auto space-y-5">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm max-w-2xl mx-auto space-y-5">
           <div className="flex items-center space-x-2">
             <Calculator className="w-6 h-6 text-emerald-700" />
             <div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActiveTab, UserRole } from '../types';
+import { ActiveTab, UserRole, UserProfile } from '../types';
 import {
   Sprout,
   Store,
@@ -10,8 +10,9 @@ import {
   Bell,
   Search,
   ShieldCheck,
-  SlidersHorizontal,
-  ChevronDown
+  ChevronDown,
+  LogIn,
+  Cpu
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -19,6 +20,8 @@ interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
   currentUserRole: UserRole;
   setCurrentUserRole: (role: UserRole) => void;
+  userProfile: UserProfile | null;
+  onOpenLoginModal: () => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onOpenNewListing: () => void;
@@ -29,6 +32,8 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   currentUserRole,
   setCurrentUserRole,
+  userProfile,
+  onOpenLoginModal,
   searchQuery,
   setSearchQuery,
   onOpenNewListing
@@ -39,31 +44,40 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="bg-emerald-800 text-white text-xs px-4 py-1.5 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="font-medium">AgriSell Uganda • Official Agricultural Marketplace & CoFarmer</span>
+          <span className="font-medium truncate">AgriSell Uganda • Official Agricultural Ecosystem</span>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1 cursor-pointer hover:underline">
-            <span>Location:</span>
-            <span className="font-semibold text-emerald-200">Uganda (UG)</span>
-          </div>
-          <span className="text-emerald-500">|</span>
-          <div className="relative group">
-            <button className="flex items-center space-x-1 font-medium hover:text-emerald-200 text-xs">
-              <span>Role: <strong className="capitalize">{currentUserRole}</strong></span>
-              <ChevronDown className="w-3 h-3" />
-            </button>
-            <div className="absolute right-0 top-full mt-1 w-44 bg-white text-slate-800 rounded-md shadow-lg border border-slate-200 py-1 hidden group-hover:block z-50">
-              {(['farmer', 'buyer', 'business', 'expert', 'admin'] as UserRole[]).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setCurrentUserRole(r)}
-                  className={`w-full text-left px-3 py-1.5 text-xs hover:bg-emerald-50 capitalize font-medium ${currentUserRole === r ? 'text-emerald-700 font-bold bg-emerald-50/50' : 'text-slate-700'}`}
-                >
-                  {r} Mode
+          {userProfile ? (
+            <div className="flex items-center space-x-2">
+              <span className="text-emerald-200 font-semibold truncate hidden sm:inline">{userProfile.name}</span>
+              <span className="text-emerald-400">|</span>
+              <div className="relative group">
+                <button className="flex items-center space-x-1 font-medium hover:text-emerald-200 text-xs">
+                  <span>Role: <strong className="capitalize">{currentUserRole}</strong></span>
+                  <ChevronDown className="w-3 h-3" />
                 </button>
-              ))}
+                <div className="absolute right-0 top-full mt-1 w-44 bg-white text-slate-800 rounded-md shadow-lg border border-slate-200 py-1 hidden group-hover:block z-50">
+                  {(['farmer', 'buyer', 'business', 'expert', 'admin'] as UserRole[]).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setCurrentUserRole(r)}
+                      className={`w-full text-left px-3 py-1.5 text-xs hover:bg-emerald-50 capitalize font-medium ${currentUserRole === r ? 'text-emerald-700 font-bold bg-emerald-50/50' : 'text-slate-700'}`}
+                    >
+                      {r} Mode
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <button
+              onClick={onOpenLoginModal}
+              className="flex items-center space-x-1 font-bold text-amber-300 hover:text-white transition-colors"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Login / Choose Role</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -131,14 +145,25 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveTab('cofarmer')}
-            className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-1.5 relative ${
-              activeTab === 'cofarmer' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
+            onClick={() => setActiveTab('tech_zone')}
+            className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-1.5 ${
+              activeTab === 'tech_zone' ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
-            <Bot className="w-4 h-4" />
-            <span>AI CoFarmer</span>
-            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+            <Cpu className="w-4 h-4" />
+            <span>Tech Zone</span>
+          </button>
+
+          {/* Minimal CoFarmer Nav Icon (No large/intrusive icon) */}
+          <button
+            onClick={() => setActiveTab('cofarmer')}
+            className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-1.5 ${
+              activeTab === 'cofarmer' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
+            }`}
+            title="AI CoFarmer Assistant"
+          >
+            <Bot className="w-4 h-4 stroke-[2]" />
+            <span>CoFarmer</span>
           </button>
 
           <button
@@ -148,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>AgriConnect</span>
+            <span>Connect</span>
           </button>
 
           <button
@@ -176,12 +201,21 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-2">
-          <button
-            onClick={onOpenNewListing}
-            className="hidden sm:inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-600/50 active:scale-95"
-          >
-            + Post Listing
-          </button>
+          {currentUserRole !== 'buyer' ? (
+            <button
+              onClick={onOpenNewListing}
+              className="hidden sm:inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-600/50 active:scale-95"
+            >
+              + Post Listing
+            </button>
+          ) : (
+            <button
+              onClick={() => setCurrentUserRole('farmer')}
+              className="hidden sm:inline-flex items-center justify-center px-3 py-2 text-xs font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded-lg transition-all"
+            >
+              Switch to Seller
+            </button>
+          )}
 
           <button
             onClick={() => setActiveTab('profile')}
