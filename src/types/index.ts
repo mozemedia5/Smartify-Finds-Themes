@@ -1,12 +1,28 @@
-export type ActiveTab = 'home' | 'marketplace' | 'cofarmer' | 'connect' | 'market_info' | 'profile' | 'admin';
+export type ActiveTab = 'home' | 'marketplace' | 'cofarmer' | 'connect' | 'market_info' | 'tech_zone' | 'profile' | 'admin';
 
 export type UserRole = 'farmer' | 'buyer' | 'business' | 'expert' | 'service_provider' | 'admin';
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  pricePerUnitUgx: number;
+  location: string;
+  imageUrl: string;
+  status: 'In Stock' | 'Low Stock' | 'Sold Out';
+  lastUpdated: string;
+}
 
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
   phone: string;
+  whatsapp: string;
+  jobTitle: string;
+  district: string;
   location: string;
   role: UserRole;
   isVerified: boolean;
@@ -14,6 +30,7 @@ export interface UserProfile {
   bio: string;
   rating?: number;
   totalSales?: number;
+  hasSeenCoFarmerOnboarding?: boolean;
 }
 
 export interface Listing {
@@ -37,7 +54,7 @@ export interface Listing {
   rating: number;
   reviewsCount: number;
   featured?: boolean;
-  type: 'product' | 'service';
+  type: 'product' | 'service' | 'machinery';
   createdAt: string;
 }
 
@@ -52,6 +69,7 @@ export interface MarketPrice {
   date: string;
   trend: 'up' | 'down' | 'stable';
   changePercentage: number;
+  historicalPrices?: { date: string; price: number }[];
 }
 
 export interface AgriNews {
@@ -99,13 +117,16 @@ export interface Expert {
   title: string;
   specialization: string;
   location: string;
+  district: string;
   experienceYears: number;
   rating: number;
   reviewsCount: number;
   isVerified: boolean;
   avatar: string;
   phone: string;
+  whatsapp: string;
   availableDays: string;
+  role: 'expert' | 'buyer' | 'farmer';
 }
 
 export interface Opportunity {
@@ -117,4 +138,14 @@ export interface Opportunity {
   location: string;
   description: string;
   link: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar?: string;
+  text: string;
+  timestamp: string;
+  isSelf?: boolean;
 }

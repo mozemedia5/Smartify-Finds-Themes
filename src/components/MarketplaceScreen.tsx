@@ -1,27 +1,21 @@
 import React, { useState } from 'react';
-import { Listing } from '../types';
+import { Listing, UserProfile } from '../types';
 import {
   Store,
   Search,
-  Filter,
   MapPin,
   ShieldCheck,
   MessageCircle,
   Phone,
   Plus,
   X,
-  CheckCircle2,
-  Wheat,
-  Sprout,
-  Tractor,
-  Stethoscope,
-  Droplet,
-  Tag,
   Star,
   SlidersHorizontal,
-  Clock,
-  User,
-  Share2
+  CheckCircle,
+  Cpu,
+  Tractor,
+  Zap,
+  Wrench
 } from 'lucide-react';
 
 interface MarketplaceScreenProps {
@@ -33,6 +27,8 @@ interface MarketplaceScreenProps {
   isNewListingModalOpen: boolean;
   setIsNewListingModalOpen: (open: boolean) => void;
   onAddListing: (newListing: Listing) => void;
+  userProfile?: UserProfile | null;
+  techZoneOnly?: boolean;
 }
 
 export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
@@ -43,31 +39,40 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
   setSelectedListing,
   isNewListingModalOpen,
   setIsNewListingModalOpen,
-  onAddListing
+  onAddListing,
+  userProfile,
+  techZoneOnly = false
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedRegion, setSelectedRegion] = useState<string>('All');
-  const [listingTypeFilter, setListingTypeFilter] = useState<'all' | 'product' | 'service'>('all');
+  const [listingTypeFilter, setListingTypeFilter] = useState<'all' | 'product' | 'service' | 'machinery'>(techZoneOnly ? 'machinery' : 'all');
 
-  // New Listing Form State
+  // Streamlined New Listing Form State
   const [formTitle, setFormTitle] = useState('');
-  const [formCategory, setFormCategory] = useState<Listing['category']>('Seeds');
+  const [formCategory, setFormCategory] = useState<Listing['category']>(techZoneOnly ? 'Machinery' : 'Seeds');
   const [formPrice, setFormPrice] = useState('');
-  const [formUnit, setFormUnit] = useState('kg');
-  const [formLocation, setFormLocation] = useState('');
-  const [formDistrict, setFormDistrict] = useState('');
-  const [formFarmerName, setFormFarmerName] = useState('');
-  const [formPhone, setFormPhone] = useState('');
-  const [formWhatsapp, setFormWhatsapp] = useState('');
+  const [formUnit, setFormUnit] = useState(techZoneOnly ? 'day' : 'kg');
   const [formDescription, setFormDescription] = useState('');
   const [formStockQty, setFormStockQty] = useState('');
   const [formImageUrl, setFormImageUrl] = useState('');
-  const [formType, setFormType] = useState<'product' | 'service'>('product');
+  const [formType, setFormType] = useState<'product' | 'service' | 'machinery'>(techZoneOnly ? 'machinery' : 'product');
 
-  const categoriesList = ['All', 'Seeds', 'Seedlings', 'Machinery', 'Services', 'Inputs', 'Livestock'];
+  const categoriesList = techZoneOnly
+    ? ['All', 'Machinery', 'Inputs', 'Services']
+    : ['All', 'Seeds', 'Seedlings', 'Machinery', 'Services', 'Inputs', 'Livestock'];
+
   const regionsList = ['All', 'Central', 'Western', 'Eastern', 'Northern'];
 
+  const defaultPhone = userProfile?.phone || '+256 772 888999';
+  const defaultWhatsapp = userProfile?.whatsapp || '256772888999';
+  const defaultName = userProfile?.name || 'Uganda Agro Seller';
+  const defaultDistrict = userProfile?.district || 'Kampala';
+
   const filteredListings = listings.filter((item) => {
+    const matchesTech = techZoneOnly
+      ? (item.type === 'machinery' || item.category === 'Machinery' || item.title.toLowerCase().includes('tractor') || item.title.toLowerCase().includes('pump') || item.title.toLowerCase().includes('spray'))
+      : true;
+
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -76,13 +81,13 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
     const matchesType = listingTypeFilter === 'all' || item.type === listingTypeFilter;
 
-    return matchesSearch && matchesCategory && matchesType;
+    return matchesTech && matchesSearch && matchesCategory && matchesType;
   });
 
   const handleSubmitNewListing = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formTitle || !formPrice || !formLocation || !formPhone) {
-      alert('Please fill in all required fields.');
+    if (!formTitle || !formPrice) {
+      alert('Please enter listing title and price.');
       return;
     }
 
@@ -91,19 +96,19 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
       title: formTitle,
       category: formCategory,
       priceUgx: Number(formPrice),
-      unit: formUnit,
-      location: formLocation,
-      district: formDistrict || 'Kampala',
-      farmerName: formFarmerName || 'Uganda Agro Seller',
-      farmerRole: formType === 'service' ? 'Agri Service Provider' : 'Commercial Farmer',
-      farmerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      unit: formUnit || 'unit',
+      location: `${defaultDistrict}, Uganda`,
+      district: defaultDistrict,
+      farmerName: defaultName,
+      farmerRole: userProfile?.jobTitle || 'Commercial Agro Producer',
+      farmerAvatar: userProfile?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
       isVerified: true,
-      phone: formPhone,
-      whatsapp: formWhatsapp.replace(/[^0-9]/g, '') || formPhone.replace(/[^0-9]/g, ''),
+      phone: defaultPhone,
+      whatsapp: defaultWhatsapp,
       images: [
-        formImageUrl || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600'
+        formImageUrl || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=600'
       ],
-      description: formDescription,
+      description: formDescription || 'Quality agricultural equipment/input verified in Uganda.',
       stockQty: formStockQty || 'In Stock',
       rating: 5.0,
       reviewsCount: 1,
@@ -114,25 +119,39 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
 
     onAddListing(newListing);
     setIsNewListingModalOpen(false);
-    // reset form
     setFormTitle('');
     setFormPrice('');
     setFormDescription('');
+    setFormImageUrl('');
   };
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Top Header & Search Control */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+      {/* Top Banner Bar */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center space-x-2">
-              <Store className="w-6 h-6 text-emerald-700" />
-              <h1 className="text-xl font-extrabold text-slate-900">AgriSell Uganda Marketplace</h1>
+              {techZoneOnly ? (
+                <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-md">
+                  <Cpu className="w-6 h-6" />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-2xl bg-emerald-700 text-white flex items-center justify-center font-bold shadow-md">
+                  <Store className="w-6 h-6" />
+                </div>
+              )}
+              <div>
+                <h1 className="text-xl font-extrabold text-slate-900">
+                  {techZoneOnly ? 'AgriTech Zone & Machinery Hub' : 'AgriSell Uganda Marketplace'}
+                </h1>
+                <p className="text-xs text-slate-500">
+                  {techZoneOnly
+                    ? 'Explore tractors, solar water pumps, drip irrigation kits, drones & farm machinery in Uganda.'
+                    : 'Direct connection discovery marketplace. Contact verified sellers directly via phone or WhatsApp.'}
+                </p>
+              </div>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Direct connection discovery marketplace. Contact verified sellers directly via phone or WhatsApp.
-            </p>
           </div>
 
           <button
@@ -140,9 +159,38 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
             className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 active:scale-95"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span>Post New Listing</span>
+            <span>{techZoneOnly ? '+ Post Equipment / Tech' : '+ Post New Listing'}</span>
           </button>
         </div>
+
+        {/* Feature Highlights Banner for Tech Zone */}
+        {techZoneOnly && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-center space-x-3">
+              <Tractor className="w-6 h-6 text-amber-700 flex-shrink-0" />
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">Tractor & Plough Hire</h4>
+                <p className="text-[10px] text-slate-600">50HP - 90HP 4WD tractors with experienced operators</p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 flex items-center space-x-3">
+              <Zap className="w-6 h-6 text-blue-700 flex-shrink-0" />
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">Solar Water Pumps</h4>
+                <p className="text-[10px] text-slate-600">Submersible solar irrigation pumps & drip kits</p>
+              </div>
+            </div>
+
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-center space-x-3">
+              <Wrench className="w-6 h-6 text-emerald-700 flex-shrink-0" />
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">Processing Machines</h4>
+                <p className="text-[10px] text-slate-600">Maize millers, coffee hullers & cassava graters</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filter Controls Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
@@ -152,7 +200,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search items or location..."
+              placeholder="Search machinery, seeds, or location..."
               className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
             />
           </div>
@@ -165,9 +213,10 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
               onChange={(e) => setListingTypeFilter(e.target.value as any)}
               className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none flex-1"
             >
-              <option value="all">Products & Services</option>
-              <option value="product">Products Only</option>
-              <option value="service">Services Only</option>
+              <option value="all">All Types</option>
+              <option value="machinery">Machinery & Tech</option>
+              <option value="product">Products</option>
+              <option value="service">Services</option>
             </select>
           </div>
 
@@ -184,7 +233,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
           </div>
         </div>
 
-        {/* Category Pills Slider */}
+        {/* Category Pills */}
         <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
           {categoriesList.map((cat) => (
             <button
@@ -342,8 +391,8 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
               </div>
 
               <div className="text-right text-xs text-slate-500">
-                <p className="font-bold text-slate-800">Member Verified</p>
-                <p className="text-[10px]">AgriSell Partner</p>
+                <p className="font-bold text-slate-800">Verified Partner</p>
+                <p className="text-[10px]">AgriSell Certified</p>
               </div>
             </div>
 
@@ -371,21 +420,39 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
         </div>
       )}
 
-      {/* Modal - Create Listing Form */}
+      {/* Modal - Streamlined Create Listing Form */}
       {isNewListingModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in duration-200">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in duration-200">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-extrabold text-slate-900">Post New Agri Listing</h3>
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900">Post New Agri Listing</h3>
+                <p className="text-[11px] text-emerald-800 font-semibold">
+                  Contact details are automatically attached from your profile settings!
+                </p>
+              </div>
               <button onClick={() => setIsNewListingModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Auto-Attached Contact Info Preview Badge */}
+            <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-3 flex items-center justify-between text-xs text-emerald-900">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <div>
+                  <span className="font-bold">Posting As: {defaultName}</span>
+                  <span className="block text-[10px] text-slate-600">
+                    Phone: {defaultPhone} • District: {defaultDistrict}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmitNewListing} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Listing Type</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setFormType('product')}
@@ -393,7 +460,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
                       formType === 'product' ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'
                     }`}
                   >
-                    Agricultural Product
+                    Product
                   </button>
                   <button
                     type="button"
@@ -402,7 +469,16 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
                       formType === 'service' ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'
                     }`}
                   >
-                    Agricultural Service
+                    Service
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormType('machinery')}
+                    className={`py-2 rounded-xl font-bold border transition-colors ${
+                      formType === 'machinery' ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    Machinery
                   </button>
                 </div>
               </div>
@@ -414,7 +490,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
                   required
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
-                  placeholder="e.g. Grafted Orange Seedlings / 50HP Tractor Rental"
+                  placeholder="e.g. Grafted Orange Seedlings / 50HP Tractor Hire"
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
                 />
               </div>
@@ -462,7 +538,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Stock / Availability</label>
+                  <label className="block font-bold text-slate-700 mb-1">Quantity / Availability</label>
                   <input
                     type="text"
                     value={formStockQty}
@@ -473,58 +549,8 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Location / District *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formLocation}
-                    onChange={(e) => setFormLocation(e.target.value)}
-                    placeholder="e.g. Mbarara / Masaka"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Your Name / Business</label>
-                  <input
-                    type="text"
-                    value={formFarmerName}
-                    onChange={(e) => setFormFarmerName(e.target.value)}
-                    placeholder="Agro Farm Ltd"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Phone Number *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formPhone}
-                    onChange={(e) => setFormPhone(e.target.value)}
-                    placeholder="+256 772 000000"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">WhatsApp Number</label>
-                  <input
-                    type="text"
-                    value={formWhatsapp}
-                    onChange={(e) => setFormWhatsapp(e.target.value)}
-                    placeholder="256772000000"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
-                  />
-                </div>
-              </div>
-
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Image URL</label>
+                <label className="block font-bold text-slate-700 mb-1">Photo Image URL</label>
                 <input
                   type="url"
                   value={formImageUrl}

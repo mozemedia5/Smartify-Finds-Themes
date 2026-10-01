@@ -79,7 +79,7 @@ export const MOCK_LISTINGS: Listing[] = [
     rating: 5.0,
     reviewsCount: 42,
     featured: true,
-    type: 'service',
+    type: 'machinery',
     createdAt: '1 day ago'
   },
   {
@@ -160,12 +160,126 @@ export const MOCK_LISTINGS: Listing[] = [
 ];
 
 export const MOCK_MARKET_PRICES: MarketPrice[] = [
-  { id: '1', commodity: 'Dry White Maize', category: 'Cereal', priceUgx: 1250, unit: 'kg', market: 'Kalerwe Market', location: 'Kampala', date: 'Today', trend: 'up', changePercentage: 4.2 },
-  { id: '2', commodity: 'Yellow Beans (Nambale)', category: 'Legumes', priceUgx: 3800, unit: 'kg', market: 'Owino Market', location: 'Kampala', date: 'Today', trend: 'stable', changePercentage: 0 },
-  { id: '3', commodity: 'Super Rice (Kilombero)', category: 'Grains', priceUgx: 4200, unit: 'kg', market: 'Mbale Central', location: 'Mbale', date: 'Today', trend: 'down', changePercentage: -1.8 },
-  { id: '4', commodity: 'Matooke (Large Cluster)', category: 'Banana', priceUgx: 25000, unit: 'bunch', market: 'Mbarara City Market', location: 'Mbarara', date: 'Today', trend: 'up', changePercentage: 8.5 },
-  { id: '5', commodity: 'Cassava Fresh', category: 'Tubers', priceUgx: 900, unit: 'kg', market: 'Arua Central', location: 'Arua', date: 'Today', trend: 'stable', changePercentage: 0 },
-  { id: '6', commodity: 'Robusta Coffee Beans (FAQ)', category: 'Cash Crops', priceUgx: 8200, unit: 'kg', market: 'Masaka Hub', location: 'Masaka', date: 'Today', trend: 'up', changePercentage: 3.1 }
+  {
+    id: '1',
+    commodity: 'Dry White Maize',
+    category: 'Cereal',
+    priceUgx: 1250,
+    unit: 'kg',
+    market: 'Kalerwe Market',
+    location: 'Kampala',
+    date: 'Today',
+    trend: 'up',
+    changePercentage: 4.2,
+    historicalPrices: [
+      { date: 'May', price: 1050 },
+      { date: 'Jun', price: 1100 },
+      { date: 'Jul', price: 1150 },
+      { date: 'Aug', price: 1200 },
+      { date: 'Sep', price: 1220 },
+      { date: 'Oct', price: 1250 }
+    ]
+  },
+  {
+    id: '2',
+    commodity: 'Yellow Beans (Nambale)',
+    category: 'Legumes',
+    priceUgx: 3800,
+    unit: 'kg',
+    market: 'Owino Market',
+    location: 'Kampala',
+    date: 'Today',
+    trend: 'stable',
+    changePercentage: 0,
+    historicalPrices: [
+      { date: 'May', price: 3500 },
+      { date: 'Jun', price: 3600 },
+      { date: 'Jul', price: 3750 },
+      { date: 'Aug', price: 3800 },
+      { date: 'Sep', price: 3800 },
+      { date: 'Oct', price: 3800 }
+    ]
+  },
+  {
+    id: '3',
+    commodity: 'Super Rice (Kilombero)',
+    category: 'Grains',
+    priceUgx: 4200,
+    unit: 'kg',
+    market: 'Mbale Central',
+    location: 'Mbale',
+    date: 'Today',
+    trend: 'down',
+    changePercentage: -1.8,
+    historicalPrices: [
+      { date: 'May', price: 4500 },
+      { date: 'Jun', price: 4400 },
+      { date: 'Jul', price: 4350 },
+      { date: 'Aug', price: 4300 },
+      { date: 'Sep', price: 4250 },
+      { date: 'Oct', price: 4200 }
+    ]
+  },
+  {
+    id: '4',
+    commodity: 'Matooke (Large Cluster)',
+    category: 'Banana',
+    priceUgx: 25000,
+    unit: 'bunch',
+    market: 'Mbarara City Market',
+    location: 'Mbarara',
+    date: 'Today',
+    trend: 'up',
+    changePercentage: 8.5,
+    historicalPrices: [
+      { date: 'May', price: 18000 },
+      { date: 'Jun', price: 20000 },
+      { date: 'Jul', price: 21000 },
+      { date: 'Aug', price: 22000 },
+      { date: 'Sep', price: 23500 },
+      { date: 'Oct', price: 25000 }
+    ]
+  },
+  {
+    id: '5',
+    commodity: 'Cassava Fresh',
+    category: 'Tubers',
+    priceUgx: 900,
+    unit: 'kg',
+    market: 'Arua Central',
+    location: 'Arua',
+    date: 'Today',
+    trend: 'stable',
+    changePercentage: 0,
+    historicalPrices: [
+      { date: 'May', price: 850 },
+      { date: 'Jun', price: 880 },
+      { date: 'Jul', price: 900 },
+      { date: 'Aug', price: 900 },
+      { date: 'Sep', price: 900 },
+      { date: 'Oct', price: 900 }
+    ]
+  },
+  {
+    id: '6',
+    commodity: 'Robusta Coffee Beans (FAQ)',
+    category: 'Cash Crops',
+    priceUgx: 8200,
+    unit: 'kg',
+    market: 'Masaka Hub',
+    location: 'Masaka',
+    date: 'Today',
+    trend: 'up',
+    changePercentage: 3.1,
+    historicalPrices: [
+      { date: 'May', price: 7200 },
+      { date: 'Jun', price: 7500 },
+      { date: 'Jul', price: 7800 },
+      { date: 'Aug', price: 7950 },
+      { date: 'Sep', price: 8050 },
+      { date: 'Oct', price: 8200 }
+    ]
+  }
 ];
 
 export const MOCK_AGRI_NEWS: AgriNews[] = [
@@ -173,8 +287,8 @@ export const MOCK_AGRI_NEWS: AgriNews[] = [
     id: '1',
     title: 'Uganda Ministry of Agriculture Announces New Seed Quality Verification Guidelines',
     category: 'Uganda Ag',
-    summary: 'The Ministry has issued strict QR verification protocols for seed dealers in Central and Eastern region to curb fake seeds before the next planting season.',
-    source: 'MAAIF Uganda',
+    summary: 'The Ministry of Agriculture, Animal Industry and Fisheries (MAAIF) issued strict QR verification protocols for seed dealers in Central and Eastern region to curb fake seeds before the next planting season.',
+    source: 'MAAIF Uganda (Certified Source)',
     date: 'Oct 1, 2024',
     image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=600',
     readTime: '3 min read',
@@ -185,7 +299,7 @@ export const MOCK_AGRI_NEWS: AgriNews[] = [
     title: 'Coffee Export Revenues Surge by 28% Driven by Premium Quality Robusta',
     category: 'Markets',
     summary: 'Uganda Coffee Development Authority (UCDA) reports record high monthly export values with increased demand in European and Asian markets.',
-    source: 'UCDA News',
+    source: 'UCDA Official News',
     date: 'Sep 29, 2024',
     image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600',
     readTime: '4 min read',
@@ -196,10 +310,11 @@ export const MOCK_AGRI_NEWS: AgriNews[] = [
     title: 'Solar Irrigation Subsidies Extended to Smallholder Farmers in Northern Uganda',
     category: 'Tech',
     summary: 'Climate-resilient agricultural water management project expands solar pump distribution across Gulu, Lira, and Soroti districts.',
-    source: 'AgriTech Uganda Daily',
+    source: 'AgriTech Uganda Daily & New Vision',
     date: 'Sep 27, 2024',
     image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600',
-    readTime: '5 min read'
+    readTime: '5 min read',
+    originalUrl: 'https://newvision.co.ug'
   }
 ];
 
@@ -209,28 +324,34 @@ export const MOCK_EXPERTS: Expert[] = [
     name: 'Dr. Emmanuel Mugisha',
     title: 'Senior Agronomist & Crop Protection Specialist',
     specialization: 'Coffee, Maize & Horticulture Pathology',
-    location: 'Makerere University / Kampala',
+    location: 'Kampala',
+    district: 'Kampala',
     experienceYears: 14,
     rating: 4.9,
     reviewsCount: 86,
     isVerified: true,
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
     phone: '+256 772 999111',
-    availableDays: 'Mon - Fri (8 AM - 5 PM)'
+    whatsapp: '256772999111',
+    availableDays: 'Mon - Fri (8 AM - 5 PM)',
+    role: 'expert'
   },
   {
     id: '2',
     name: 'Dr. Patricia Kembabazi',
     title: 'Veterinary Surgeon & Livestock Consultant',
     specialization: 'Dairy Cattle & Poultry Health',
-    location: 'Mbarara Regional Veterinary Hub',
+    location: 'Mbarara',
+    district: 'Mbarara',
     experienceYears: 11,
     rating: 5.0,
     reviewsCount: 64,
     isVerified: true,
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200',
     phone: '+256 701 444333',
-    availableDays: 'Mon - Sat (7 AM - 6 PM)'
+    whatsapp: '256701444333',
+    availableDays: 'Mon - Sat (7 AM - 6 PM)',
+    role: 'expert'
   }
 ];
 
