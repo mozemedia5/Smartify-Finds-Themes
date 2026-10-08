@@ -3,13 +3,16 @@ import { Listing, MarketPrice, AgriNews, Expert, CommunityPost, Opportunity, Dis
 export const MOCK_LISTINGS: Listing[] = [
   {
     id: '1',
-    title: 'Certified Rice Seeds (BRR Rice - High Yield)',
+    sellerId: 'usr_002',
+    title: 'Certified Rice Seeds (High Yield Variety)',
     category: 'Seeds',
     subcategory: 'Cereal Seeds',
-    priceUgx: 15000,
+    price: 15000,
+    currency: 'UGX',
     unit: 'kg',
-    location: 'Mbale District',
-    district: 'Mbale',
+    location: 'Central Agricultural Zone',
+    district: 'Eastern Hub',
+    region: 'Eastern',
     farmerName: 'John Baptist Okello',
     farmerRole: 'Certified Seed Grower',
     farmerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
@@ -20,23 +23,37 @@ export const MOCK_LISTINGS: Listing[] = [
       'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600',
       'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=600'
     ],
-    description: 'High germination rate certified rice seeds optimized for Ugandan climate and soil conditions. High drought resistance and 35% higher yields.',
+    description: 'High germination rate certified rice seeds optimized for regional agricultural conditions. High drought resistance and up to 35% higher yield potential.',
+    specifications: [
+      { label: 'Germination Rate', value: '96%' },
+      { label: 'Purity Rate', value: '99.2%' },
+      { label: 'Maturity Duration', value: '110-120 Days' }
+    ],
+    usageInfo: 'Sow at a depth of 2-3cm with row spacing of 20cm x 15cm. Recommended seeding rate: 25kg per acre.',
+    packagingInfo: 'Sealed moisture-proof 25kg multi-wall paper bags with official certification tag.',
     stockQty: '1,200 kg available',
+    stockCount: 1200,
+    stockStatus: 'In Stock',
     rating: 4.9,
     reviewsCount: 38,
     featured: true,
+    condition: 'Certified',
+    deliveryAvailable: true,
     type: 'product',
     createdAt: '2 hours ago'
   },
   {
     id: '2',
+    sellerId: 'usr_003',
     title: 'Healthy Grafted Lime Seedlings',
     category: 'Seedlings',
     subcategory: 'Fruit Seedlings',
-    priceUgx: 3000,
+    price: 3000,
+    currency: 'UGX',
     unit: 'pc',
-    location: 'Luwero District',
-    district: 'Luwero',
+    location: 'Central Nursery Station',
+    district: 'Central District',
+    region: 'Central',
     farmerName: 'Sarah Namubiru',
     farmerRole: 'Nursery Operator',
     farmerAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
@@ -47,24 +64,38 @@ export const MOCK_LISTINGS: Listing[] = [
       'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600',
       'https://images.unsplash.com/photo-1592417817098-8f3d6eb19657?w=600'
     ],
-    description: 'Disease-free, high-fruiting grafted lime seedlings ready for immediate orchard planting. Matures within 18 months.',
+    description: 'Disease-free, high-fruiting grafted lime seedlings ready for immediate orchard planting. Matures and fruits within 18 months.',
+    specifications: [
+      { label: 'Variety', value: 'Tahiti Lime Grafted' },
+      { label: 'Height', value: '45 - 60 cm' },
+      { label: 'Rootstock', value: 'Volkamer Lemon' }
+    ],
+    usageInfo: 'Plant in well-drained soil holes of 60cm x 60cm x 60cm enriched with well-decomposed organic manure.',
+    packagingInfo: 'Individual potted black nursery bags with soil mix.',
     stockQty: '500 pcs available',
+    stockCount: 500,
+    stockStatus: 'In Stock',
     rating: 4.8,
     reviewsCount: 24,
     featured: true,
+    condition: 'New',
+    deliveryAvailable: true,
     type: 'product',
     createdAt: '5 hours ago'
   },
   {
     id: '3',
-    title: '50HP Farm Tractor Hire with Operator',
+    sellerId: 'usr_004',
+    title: '50HP Farm Tractor Hire with Experienced Operator',
     category: 'Machinery',
     subcategory: 'Tractor Hire',
-    priceUgx: 700000,
+    price: 700000,
+    currency: 'UGX',
     unit: 'day',
-    location: 'Mbarara & Western Region',
-    district: 'Mbarara',
-    farmerName: 'AgriMach Services Uganda',
+    location: 'Western Equipment Hub',
+    district: 'Western District',
+    region: 'Western',
+    farmerName: 'AgriMach Services',
     farmerRole: 'Agri Equipment Provider',
     farmerAvatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150',
     isVerified: true,
@@ -75,23 +106,35 @@ export const MOCK_LISTINGS: Listing[] = [
       'https://images.unsplash.com/photo-1530267981608-bc70a270d063?w=600'
     ],
     description: 'Heavy duty 50HP 4WD tractor equipped with disc plough and harrow. Includes experienced operator and fuel delivery for farmland preparation.',
+    specifications: [
+      { label: 'Horsepower', value: '50 HP 4WD' },
+      { label: 'Attachments', value: '3-Disc Plough & 16-Disc Harrow' },
+      { label: 'Fuel Included', value: 'Yes (Up to 8 hours daily)' }
+    ],
     stockQty: '3 Units Available',
+    stockCount: 3,
+    stockStatus: 'In Stock',
     rating: 5.0,
     reviewsCount: 42,
     featured: true,
+    condition: 'Certified',
+    deliveryAvailable: true,
     type: 'machinery',
     createdAt: '1 day ago'
   },
   {
     id: '4',
-    title: 'Hybrid Maize Seeds (Longe 10H)',
+    sellerId: 'usr_005',
+    title: 'Hybrid High-Yield Maize Seeds',
     category: 'Seeds',
     subcategory: 'Maize',
-    priceUgx: 12000,
+    price: 12000,
+    currency: 'UGX',
     unit: 'kg',
-    location: 'Kasese',
-    district: 'Kasese',
-    farmerName: 'Kasese Farmers Co-op',
+    location: 'Valley Co-op Station',
+    district: 'Valley District',
+    region: 'Western',
+    farmerName: 'Valley Farmers Co-op',
     farmerRole: 'Seed Cooperative',
     farmerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
     isVerified: true,
@@ -100,23 +143,30 @@ export const MOCK_LISTINGS: Listing[] = [
     images: [
       'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=600'
     ],
-    description: 'Drought tolerant Longe 10H hybrid maize seed bag. Suitable for both first and second rains in Uganda.',
+    description: 'Drought-tolerant hybrid maize seed. Suitable for first and second rainy seasons with high cob filling density.',
     stockQty: '800 bags',
+    stockCount: 800,
+    stockStatus: 'In Stock',
     rating: 4.7,
     reviewsCount: 19,
+    condition: 'Certified',
+    deliveryAvailable: true,
     type: 'product',
     createdAt: '2 days ago'
   },
   {
     id: '5',
+    sellerId: 'usr_006',
     title: 'Professional Crop Spraying & Fumigation Service',
     category: 'Services',
     subcategory: 'Spraying Service',
-    priceUgx: 45000,
+    price: 45000,
+    currency: 'UGX',
     unit: 'acre',
-    location: 'Mityana / Wakiso',
-    district: 'Wakiso',
-    farmerName: 'Kampala AgroCare Spray Team',
+    location: 'Central Agricultural Hub',
+    district: 'Central District',
+    region: 'Central',
+    farmerName: 'AgroCare Pest Services',
     farmerRole: 'Licensed Pest Specialist',
     farmerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
     isVerified: true,
@@ -125,23 +175,30 @@ export const MOCK_LISTINGS: Listing[] = [
     images: [
       'https://images.unsplash.com/photo-1589923188900-85dae523342b?w=600'
     ],
-    description: 'Motorized knapsack and drone crop spraying services for coffee, maize, tomatoes, and fruit orchards.',
+    description: 'Motorized knapsack and precision drone crop spraying services for commercial grain, vegetable, and orchard farming.',
     stockQty: 'Daily booking open',
+    stockCount: 10,
+    stockStatus: 'In Stock',
     rating: 4.9,
     reviewsCount: 15,
+    condition: 'New',
+    deliveryAvailable: true,
     type: 'service',
     createdAt: '3 days ago'
   },
   {
     id: '6',
+    sellerId: 'usr_007',
     title: 'Organic NPK & Bio-Fertilizer 50kg Bag',
     category: 'Inputs',
     subcategory: 'Fertilizers',
-    priceUgx: 135000,
+    price: 135000,
+    currency: 'UGX',
     unit: 'bag',
-    location: 'Jinja Industrial Area',
-    district: 'Jinja',
-    farmerName: 'Nile BioAgro Uganda',
+    location: 'Industrial Agro Hub',
+    district: 'Industrial District',
+    region: 'Eastern',
+    farmerName: 'Nile BioAgro',
     farmerRole: 'Fertilizer Manufacturer',
     farmerAvatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150',
     isVerified: true,
@@ -150,10 +207,14 @@ export const MOCK_LISTINGS: Listing[] = [
     images: [
       'https://images.unsplash.com/photo-1628352081506-83c43123ed6d?w=600'
     ],
-    description: 'Enriched organic bio-fertilizer promoting root development, soil microbial health, and high yields.',
+    description: 'Enriched organic bio-fertilizer promoting root development, soil microbial health, and high crop yields.',
     stockQty: '250 bags',
+    stockCount: 250,
+    stockStatus: 'In Stock',
     rating: 4.8,
     reviewsCount: 31,
+    condition: 'New',
+    deliveryAvailable: true,
     type: 'product',
     createdAt: '3 days ago'
   }
@@ -164,10 +225,11 @@ export const MOCK_MARKET_PRICES: MarketPrice[] = [
     id: '1',
     commodity: 'Dry White Maize',
     category: 'Cereal',
-    priceUgx: 1250,
+    price: 1250,
+    currency: 'UGX',
     unit: 'kg',
-    market: 'Kalerwe Market',
-    location: 'Kampala',
+    market: 'Central Grain Market',
+    location: 'Central Market Hub',
     date: 'Today',
     trend: 'up',
     changePercentage: 4.2,
@@ -182,12 +244,13 @@ export const MOCK_MARKET_PRICES: MarketPrice[] = [
   },
   {
     id: '2',
-    commodity: 'Yellow Beans (Nambale)',
+    commodity: 'Yellow Beans',
     category: 'Legumes',
-    priceUgx: 3800,
+    price: 3800,
+    currency: 'UGX',
     unit: 'kg',
-    market: 'Owino Market',
-    location: 'Kampala',
+    market: 'City Produce Market',
+    location: 'Metro Center',
     date: 'Today',
     trend: 'stable',
     changePercentage: 0,
@@ -202,12 +265,13 @@ export const MOCK_MARKET_PRICES: MarketPrice[] = [
   },
   {
     id: '3',
-    commodity: 'Super Rice (Kilombero)',
+    commodity: 'Super Grade Rice',
     category: 'Grains',
-    priceUgx: 4200,
+    price: 4200,
+    currency: 'UGX',
     unit: 'kg',
-    market: 'Mbale Central',
-    location: 'Mbale',
+    market: 'Regional Trade Hub',
+    location: 'Eastern Hub',
     date: 'Today',
     trend: 'down',
     changePercentage: -1.8,
@@ -222,12 +286,13 @@ export const MOCK_MARKET_PRICES: MarketPrice[] = [
   },
   {
     id: '4',
-    commodity: 'Matooke (Large Cluster)',
-    category: 'Banana',
-    priceUgx: 25000,
+    commodity: 'Cooking Plantains (Large Cluster)',
+    category: 'Produce',
+    price: 25000,
+    currency: 'UGX',
     unit: 'bunch',
-    market: 'Mbarara City Market',
-    location: 'Mbarara',
+    market: 'City Fruit & Produce Hub',
+    location: 'Western City',
     date: 'Today',
     trend: 'up',
     changePercentage: 8.5,
@@ -242,12 +307,13 @@ export const MOCK_MARKET_PRICES: MarketPrice[] = [
   },
   {
     id: '5',
-    commodity: 'Cassava Fresh',
+    commodity: 'Fresh Cassava Tubers',
     category: 'Tubers',
-    priceUgx: 900,
+    price: 900,
+    currency: 'UGX',
     unit: 'kg',
-    market: 'Arua Central',
-    location: 'Arua',
+    market: 'Northern Border Market',
+    location: 'Northern Hub',
     date: 'Today',
     trend: 'stable',
     changePercentage: 0,
@@ -264,10 +330,11 @@ export const MOCK_MARKET_PRICES: MarketPrice[] = [
     id: '6',
     commodity: 'Robusta Coffee Beans (FAQ)',
     category: 'Cash Crops',
-    priceUgx: 8200,
+    price: 8200,
+    currency: 'UGX',
     unit: 'kg',
-    market: 'Masaka Hub',
-    location: 'Masaka',
+    market: 'Southern Coffee Exchange',
+    location: 'Southern Hub',
     date: 'Today',
     trend: 'up',
     changePercentage: 3.1,
@@ -285,36 +352,36 @@ export const MOCK_MARKET_PRICES: MarketPrice[] = [
 export const MOCK_AGRI_NEWS: AgriNews[] = [
   {
     id: '1',
-    title: 'Uganda Ministry of Agriculture Announces New Seed Quality Verification Guidelines',
-    category: 'Uganda Ag',
-    summary: 'The Ministry of Agriculture, Animal Industry and Fisheries (MAAIF) issued strict QR verification protocols for seed dealers in Central and Eastern region to curb fake seeds before the next planting season.',
-    source: 'MAAIF Uganda (Certified Source)',
+    title: 'Agricultural Ministry Releases New Quality Verification Framework for Seed Dealers',
+    category: 'Regional Ag',
+    summary: 'Agricultural authorities issued updated digital QR verification protocols for certified seed dealers across key grain regions to curb counterfeit inputs prior to planting season.',
+    source: 'National Ag Bulletin',
     date: 'Oct 1, 2024',
     image: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=600',
     readTime: '3 min read',
-    originalUrl: 'https://agriculture.go.ug'
+    originalUrl: 'https://example.org/agri-news-1'
   },
   {
     id: '2',
-    title: 'Coffee Export Revenues Surge by 28% Driven by Premium Quality Robusta',
+    title: 'Coffee Export Revenue Surges 28% Driven by Premium Quality Harvests',
     category: 'Markets',
-    summary: 'Uganda Coffee Development Authority (UCDA) reports record high monthly export values with increased demand in European and Asian markets.',
-    source: 'UCDA Official News',
+    summary: 'Coffee exporters report record high monthly trade values with strong global demand for high-grade sun-dried coffee beans.',
+    source: 'Global Coffee Review',
     date: 'Sep 29, 2024',
     image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600',
     readTime: '4 min read',
-    originalUrl: 'https://ugandacoffee.go.ug'
+    originalUrl: 'https://example.org/agri-news-2'
   },
   {
     id: '3',
-    title: 'Solar Irrigation Subsidies Extended to Smallholder Farmers in Northern Uganda',
+    title: 'Solar Irrigation Subsidies Extended to Smallholder Farmers',
     category: 'Tech',
-    summary: 'Climate-resilient agricultural water management project expands solar pump distribution across Gulu, Lira, and Soroti districts.',
-    source: 'AgriTech Uganda Daily & New Vision',
+    summary: 'Climate-resilient agricultural water initiatives expand solar pump distribution and drip irrigation setups for commercial vegetable growers.',
+    source: 'AgriTech Daily',
     date: 'Sep 27, 2024',
     image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600',
     readTime: '5 min read',
-    originalUrl: 'https://newvision.co.ug'
+    originalUrl: 'https://example.org/agri-news-3'
   }
 ];
 
@@ -323,9 +390,9 @@ export const MOCK_EXPERTS: Expert[] = [
     id: '1',
     name: 'Dr. Emmanuel Mugisha',
     title: 'Senior Agronomist & Crop Protection Specialist',
-    specialization: 'Coffee, Maize & Horticulture Pathology',
-    location: 'Kampala',
-    district: 'Kampala',
+    specialization: 'Grain, Coffee & Horticulture Pathology',
+    location: 'Central Agricultural Hub',
+    district: 'Central District',
     experienceYears: 14,
     rating: 4.9,
     reviewsCount: 86,
@@ -334,15 +401,17 @@ export const MOCK_EXPERTS: Expert[] = [
     phone: '+256 772 999111',
     whatsapp: '256772999111',
     availableDays: 'Mon - Fri (8 AM - 5 PM)',
-    role: 'expert'
+    role: 'expert',
+    consultationFee: '50,000 UGX / session',
+    bio: 'Over 14 years specializing in Integrated Pest Management, soil nutrition, and disease diagnostic consultation for grain and fruit growers.'
   },
   {
     id: '2',
     name: 'Dr. Patricia Kembabazi',
     title: 'Veterinary Surgeon & Livestock Consultant',
-    specialization: 'Dairy Cattle & Poultry Health',
-    location: 'Mbarara',
-    district: 'Mbarara',
+    specialization: 'Dairy Cattle, Poultry & Swine Health',
+    location: 'Western Livestock Station',
+    district: 'Western District',
     experienceYears: 11,
     rating: 5.0,
     reviewsCount: 64,
@@ -351,7 +420,9 @@ export const MOCK_EXPERTS: Expert[] = [
     phone: '+256 701 444333',
     whatsapp: '256701444333',
     availableDays: 'Mon - Sat (7 AM - 6 PM)',
-    role: 'expert'
+    role: 'expert',
+    consultationFee: '60,000 UGX / visit',
+    bio: 'Dedicated veterinary practitioner assisting smallholders and commercial livestock farms in disease prevention and optimal nutrition.'
   }
 ];
 
@@ -363,11 +434,20 @@ export const MOCK_COMMUNITY_POSTS: CommunityPost[] = [
     authorAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
     isVerified: true,
     timeAgo: '3 hours ago',
-    content: 'Our greenhouse tomato harvest in Wakiso is exceeding expectations this season. Used organic neem oil spray early to prevent whiteflies and early blight. What crop protection methods are working best for fellow farmers in Central region?',
+    content: 'Our greenhouse tomato harvest is exceeding expectations this season. Used organic neem oil spray early to prevent whiteflies and early blight. What crop protection methods are working best for fellow growers?',
     image: 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=600',
     likes: 42,
     commentsCount: 18,
-    tags: ['Tomatoes', 'Horticulture', 'PestControl']
+    tags: ['Tomatoes', 'Horticulture', 'PestControl'],
+    comments: [
+      {
+        id: 'c1',
+        author: 'Dr. Emmanuel Mugisha',
+        authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+        text: 'Great practice David! Ensure you alternate with copper-based sprays during rainy spells to avoid blight resistance.',
+        timeAgo: '2 hours ago'
+      }
+    ]
   },
   {
     id: '2',
@@ -376,7 +456,7 @@ export const MOCK_COMMUNITY_POSTS: CommunityPost[] = [
     authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     isVerified: false,
     timeAgo: '6 hours ago',
-    content: 'Looking for reliable suppliers of high-protein sunflower cake and maize bran in Mukono or Kampala for poultry feed formulation.',
+    content: 'Looking for reliable suppliers of high-protein sunflower cake and maize bran in the Central region for poultry feed formulation.',
     likes: 19,
     commentsCount: 7,
     tags: ['Poultry', 'FeedInputs', 'BuyerRequest']
@@ -386,23 +466,23 @@ export const MOCK_COMMUNITY_POSTS: CommunityPost[] = [
 export const MOCK_OPPORTUNITIES: Opportunity[] = [
   {
     id: '1',
-    title: 'Uganda Agribusiness Innovation Grant 2024 ($5,000 - $25,000)',
-    organization: 'Agricultural Development Fund Uganda',
+    title: 'Agribusiness Innovation Development Grant ($5,000 - $25,000)',
+    organization: 'Agricultural Development Fund',
     type: 'Grant',
     deadline: 'Nov 15, 2024',
-    location: 'Nationwide Uganda',
-    description: 'Financial grants for youth and women-led agricultural enterprises introducing post-harvest processing and digital technologies.',
-    link: 'https://agrifund.ug/grants'
+    location: 'Nationwide Opportunity',
+    description: 'Financial grants for youth and women-led agricultural enterprises introducing post-harvest processing, cold chain, or digital farm technologies.',
+    link: 'https://example.org/grants'
   },
   {
     id: '2',
     title: 'Free Workshop on Modern Drip Irrigation Installation',
-    organization: 'NARO Uganda / JICA',
+    organization: 'Agricultural Research Institute',
     type: 'Training',
     deadline: 'Oct 20, 2024',
-    location: 'Namulonge Agricultural Research Station',
+    location: 'Central Agricultural Station',
     description: 'Hands-on training workshop for farm managers and vegetable growers on efficient water conservation and solar pumping.',
-    link: 'https://naro.go.ug/events'
+    link: 'https://example.org/events'
   }
 ];
 
@@ -433,6 +513,10 @@ export const SAMPLE_DISEASES: DiseaseDiagnosis[] = [
       'Intercrop maize with legume crops like beans or desmodium (Push-Pull strategy).',
       'Inspect crop fields weekly starting 10 days after crop emergence.'
     ],
+    recommendedNextSteps: [
+      'Isolate heavily infested rows to prevent spread.',
+      'Consult a certified agronomist via AgriConnect for field-specific dosages.'
+    ],
     sampleImage: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=600'
   },
   {
@@ -443,7 +527,7 @@ export const SAMPLE_DISEASES: DiseaseDiagnosis[] = [
     severity: 'Moderate',
     symptoms: [
       'Concentric target-like brown spots on older lower leaves',
-      'Yellow halo surrounding leaf leaf spots',
+      'Yellow halo surrounding leaf spots',
       'Premature defoliation starting from ground upward'
     ],
     organicTreatment: [
@@ -456,6 +540,10 @@ export const SAMPLE_DISEASES: DiseaseDiagnosis[] = [
     prevention: [
       'Ensure 3-year crop rotation with non-solanaceous crops.',
       'Avoid overhead sprinkler irrigation; apply drip watering at soil level.'
+    ],
+    recommendedNextSteps: [
+      'Stake tomato plants to increase air flow.',
+      'Mulch surrounding soil to prevent soil-splash transmission.'
     ],
     sampleImage: 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=600'
   }

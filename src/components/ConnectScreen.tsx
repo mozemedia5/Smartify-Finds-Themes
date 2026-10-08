@@ -1,380 +1,195 @@
 import React, { useState } from 'react';
-import { CommunityPost, Expert, UserRole, UserProfile, ChatMessage } from '../types';
-import { MOCK_COMMUNITY_POSTS, MOCK_EXPERTS } from '../data/mockData';
+import { UserRole, UserProfile, Expert, CommunityPost, Opportunity } from '../types';
+import { MOCK_EXPERTS, MOCK_COMMUNITY_POSTS, MOCK_OPPORTUNITIES } from '../data/mockData';
 import {
   Users,
-  UserCheck,
   MessageSquare,
-  ThumbsUp,
-  Share2,
+  Award,
   ShieldCheck,
   Star,
-  Phone,
   MapPin,
+  Phone,
+  Briefcase,
+  Heart,
   Send,
-  MessageCircle,
-  X,
-  Search,
-  Bot
+  Plus,
+  ExternalLink,
+  Calendar,
+  Building
 } from 'lucide-react';
 
 interface ConnectScreenProps {
-  currentUserRole?: UserRole;
-  userProfile?: UserProfile | null;
+  currentUserRole: UserRole;
+  userProfile: UserProfile | null;
+  onOpenMessageSeller?: (sellerId: string, sellerName: string) => void;
 }
 
 export const ConnectScreen: React.FC<ConnectScreenProps> = ({
-  currentUserRole = 'farmer',
-  userProfile
+  currentUserRole,
+  userProfile,
+  onOpenMessageSeller
 }) => {
-  const [activeTab, setActiveTab] = useState<'chat' | 'feed' | 'experts'>('chat');
+  const [activeTab, setActiveTab] = useState<'feed' | 'experts' | 'opportunities'>('feed');
+
+  // Posts State
   const [posts, setPosts] = useState<CommunityPost[]>(MOCK_COMMUNITY_POSTS);
-  const [experts] = useState<Expert[]>(MOCK_EXPERTS);
-
-  // Live Chat State
-  const [chatFilterRole, setChatFilterRole] = useState<'all' | 'expert' | 'buyer' | 'farmer'>('all');
-  const [selectedChatUser, setSelectedChatUser] = useState<Expert | null>(MOCK_EXPERTS[0]);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: 'm1',
-      senderId: '1',
-      senderName: 'Dr. Emmanuel Mugisha',
-      senderAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-      text: 'Jambo! I am Dr. Emmanuel Mugisha, Senior Agronomist. How can I assist with your crop diseases or farm management today?',
-      timestamp: '10:14 AM'
-    }
-  ]);
-  const [chatInputText, setChatInputText] = useState('');
-
-  // New Post Form State
   const [newPostContent, setNewPostContent] = useState('');
-  const [newPostTags, setNewPostTags] = useState('');
+  const [newPostTag, setNewPostTag] = useState('General');
 
-  const handleSendChatMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInputText.trim() || !selectedChatUser) return;
+  // Expert State
+  const [experts, setExperts] = useState<Expert[]>(MOCK_EXPERTS);
+  const [selectedExpert, setSelectedExpert] = useState<Expert | null>(null);
 
-    const userMsg: ChatMessage = {
-      id: 'msg_' + Date.now(),
-      senderId: userProfile?.id || 'usr_me',
-      senderName: userProfile?.name || 'You',
-      text: chatInputText,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isSelf: true
-    };
-
-    setChatMessages(prev => [...prev, userMsg]);
-    const currentTxt = chatInputText;
-    setChatInputText('');
-
-    // Simulated reply from expert/buyer/seller
-    setTimeout(() => {
-      const replyMsg: ChatMessage = {
-        id: 'msg_reply_' + Date.now(),
-        senderId: selectedChatUser.id,
-        senderName: selectedChatUser.name,
-        senderAvatar: selectedChatUser.avatar,
-        text: `Thanks for contacting regarding "${currentTxt}". I am available to consult or trade produce in ${selectedChatUser.location}. Let me know if you would like a direct phone call.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setChatMessages(prev => [...prev, replyMsg]);
-    }, 1200);
-  };
+  // Opportunities State
+  const [opportunities, setOpportunities] = useState<Opportunity[]>(MOCK_OPPORTUNITIES);
 
   const handleCreatePost = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPostContent.trim()) return;
 
     const post: CommunityPost = {
-      id: Date.now().toString(),
-      author: userProfile?.name || 'You (Uganda Farmer)',
-      authorRole: userProfile?.jobTitle || 'Verified Agricultural Member',
-      authorAvatar: userProfile?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      isVerified: true,
+      id: `post_${Date.now()}`,
+      author: userProfile?.name || 'Agri Member',
+      authorRole: userProfile?.jobTitle || 'Verified Farmer',
+      authorAvatar: userProfile?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+      isVerified: userProfile?.isVerified || true,
       timeAgo: 'Just now',
       content: newPostContent,
-      likes: 1,
+      likes: 0,
       commentsCount: 0,
-      tags: newPostTags.split(',').map(t => t.trim()).filter(Boolean)
+      tags: [newPostTag]
     };
 
     setPosts([post, ...posts]);
     setNewPostContent('');
-    setNewPostTags('');
   };
 
-  const handleLikePost = (id: string) => {
-    setPosts(posts.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
+  const handleLikePost = (postId: string) => {
+    setPosts(posts.map(p => p.id === postId ? { ...p, likes: p.likes + 1 } : p));
   };
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 text-white rounded-3xl p-6 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-emerald-300">
-            <Users className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-xl font-extrabold">AgriConnect Uganda</h1>
-            <p className="text-xs text-emerald-100 mt-0.5">
-              Live chat & direct connections with experts, buyers, and sellers across Uganda.
-            </p>
-          </div>
+      {/* Banner */}
+      <div className="bg-gradient-to-r from-emerald-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Agricultural Ecosystem & Network</h1>
+          <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-xl">
+            Connect with agronomists, veterinary specialists, buyers, certified seed operators, and agricultural grant opportunities.
+          </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center bg-black/20 p-1.5 rounded-2xl backdrop-blur-md border border-white/10 text-xs font-bold">
-          <button
-            onClick={() => setActiveTab('chat')}
-            className={`px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
-              activeTab === 'chat' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
-            }`}
-          >
-            <MessageCircle className="w-4 h-4 text-emerald-600" />
-            <span>Live Chat</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('feed')}
-            className={`px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
-              activeTab === 'feed' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
-            }`}
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span>Community Feed</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('experts')}
-            className={`px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
-              activeTab === 'experts' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
-            }`}
-          >
-            <UserCheck className="w-4 h-4 text-emerald-400" />
-            <span>Experts</span>
-          </button>
+        <div className="flex items-center space-x-2 bg-emerald-700/50 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-emerald-500/30 text-xs font-bold">
+          <Users className="w-4 h-4 text-emerald-300" />
+          <span>Community Directory</span>
         </div>
       </div>
 
-      {/* TAB 1: LIVE CHAT WITH EXPERTS, BUYERS & SELLERS */}
-      {activeTab === 'chat' && (
-        <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-3 min-h-[520px]">
-          {/* Chat Contacts List Column */}
-          <div className="border-r border-slate-200 p-4 space-y-3 bg-slate-50/50">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Connect Contacts</h3>
-              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">Online</span>
-            </div>
+      {/* Tabs Bar */}
+      <div className="flex space-x-2 border-b border-slate-200 pb-2 text-xs font-bold">
+        <button
+          onClick={() => setActiveTab('feed')}
+          className={`px-4 py-2 rounded-xl transition-all ${activeTab === 'feed' ? 'bg-emerald-700 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+        >
+          Community Discussions & Feed
+        </button>
+        <button
+          onClick={() => setActiveTab('experts')}
+          className={`px-4 py-2 rounded-xl transition-all ${activeTab === 'experts' ? 'bg-emerald-700 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+        >
+          Verified Agronomists & Specialists ({experts.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('opportunities')}
+          className={`px-4 py-2 rounded-xl transition-all ${activeTab === 'opportunities' ? 'bg-emerald-700 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+        >
+          Grants & Opportunities ({opportunities.length})
+        </button>
+      </div>
 
-            {/* Filter Pill Switcher */}
-            <div className="flex items-center space-x-1 text-[11px] font-bold">
-              {(['all', 'expert', 'buyer', 'farmer'] as const).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setChatFilterRole(r)}
-                  className={`px-2.5 py-1 rounded-lg capitalize transition-colors ${
-                    chatFilterRole === r ? 'bg-emerald-700 text-white' : 'bg-slate-200/70 text-slate-700 hover:bg-slate-200'
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-
-            {/* Contacts Cards */}
-            <div className="space-y-2 max-h-[420px] overflow-y-auto">
-              {experts.map((exp) => (
-                <button
-                  key={exp.id}
-                  onClick={() => setSelectedChatUser(exp)}
-                  className={`w-full p-3 rounded-2xl text-left flex items-start space-x-3 transition-all ${
-                    selectedChatUser?.id === exp.id
-                      ? 'bg-emerald-700 text-white shadow-md'
-                      : 'bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-800'
-                  }`}
-                >
-                  <img src={exp.avatar} alt={exp.name} className="w-10 h-10 rounded-xl object-cover border border-white/40 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-extrabold truncate">{exp.name}</p>
-                      <ShieldCheck className={`w-3.5 h-3.5 ${selectedChatUser?.id === exp.id ? 'text-emerald-200' : 'text-emerald-600'}`} />
-                    </div>
-                    <p className={`text-[10px] truncate ${selectedChatUser?.id === exp.id ? 'text-emerald-100' : 'text-slate-500'}`}>
-                      {exp.title}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Active Chat Conversation Area */}
-          <div className="md:col-span-2 flex flex-col h-full bg-slate-50/30">
-            {selectedChatUser ? (
-              <>
-                {/* Chat Top Bar */}
-                <div className="p-4 border-b border-slate-200 bg-white flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <img src={selectedChatUser.avatar} alt={selectedChatUser.name} className="w-10 h-10 rounded-xl object-cover border border-emerald-300" />
-                    <div>
-                      <div className="flex items-center space-x-1.5">
-                        <h3 className="text-xs font-extrabold text-slate-900">{selectedChatUser.name}</h3>
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      </div>
-                      <p className="text-[10px] text-slate-500">{selectedChatUser.title} • {selectedChatUser.location}</p>
-                    </div>
-                  </div>
-
-                  <a
-                    href={`tel:${selectedChatUser.phone}`}
-                    className="p-2 bg-emerald-100 text-emerald-800 hover:bg-emerald-700 hover:text-white rounded-xl transition-colors text-xs font-bold flex items-center space-x-1"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Call</span>
-                  </a>
-                </div>
-
-                {/* Chat Message Window */}
-                <div className="flex-1 p-4 overflow-y-auto space-y-3 min-h-[340px]">
-                  {chatMessages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex items-start space-x-2 max-w-md ${
-                        msg.isSelf ? 'ml-auto flex-row-reverse space-x-reverse' : ''
-                      }`}
-                    >
-                      <div className={`p-3 rounded-2xl text-xs leading-relaxed ${
-                        msg.isSelf
-                          ? 'bg-emerald-700 text-white rounded-tr-none'
-                          : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none shadow-sm'
-                      }`}>
-                        <p>{msg.text}</p>
-                        <span className={`block text-[9px] mt-1 text-right ${
-                          msg.isSelf ? 'text-emerald-200' : 'text-slate-400'
-                        }`}>
-                          {msg.timestamp}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Input Bar */}
-                <form onSubmit={handleSendChatMessage} className="p-3 bg-white border-t border-slate-200 flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={chatInputText}
-                    onChange={(e) => setChatInputText(e.target.value)}
-                    placeholder={`Message ${selectedChatUser.name}...`}
-                    className="flex-1 p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!chatInputText.trim()}
-                    className="p-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl shadow-sm transition-colors"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-              </>
-            ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-400">
-                Select a contact from the list to start live chat.
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* COMMUNITY FEED TAB */}
+      {/* Tab 1: Feed */}
       {activeTab === 'feed' && (
-        <div className="space-y-5">
+        <div className="space-y-6 text-xs">
           {/* Post Creation Box */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-3">
-            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Start an Agricultural Discussion</h3>
-            <form onSubmit={handleCreatePost} className="space-y-3">
+          <form onSubmit={handleCreatePost} className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+            <div className="flex items-center space-x-3">
+              <img
+                src={userProfile?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'}
+                alt={userProfile?.name}
+                className="w-10 h-10 rounded-full object-cover border border-slate-200"
+              />
               <textarea
-                rows={3}
+                rows={2}
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
-                placeholder="Ask fellow farmers in Uganda about seed availability, pest treatments, crop yields, or market demands..."
-                className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
-              />
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-                <input
-                  type="text"
-                  value={newPostTags}
-                  onChange={(e) => setNewPostTags(e.target.value)}
-                  placeholder="Tags (e.g. Maize, Pests, Wakiso)"
-                  className="w-full sm:w-64 p-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled={!newPostContent.trim()}
-                  className="w-full sm:w-auto px-5 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
-                >
-                  Post to AgriConnect
-                </button>
-              </div>
-            </form>
-          </div>
+                placeholder="Share field insights, disease advisories, or query fellow growers..."
+                className="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
+              ></textarea>
+            </div>
 
-          {/* Posts List */}
+            <div className="flex justify-between items-center pt-1">
+              <select
+                value={newPostTag}
+                onChange={(e) => setNewPostTag(e.target.value)}
+                className="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-bold"
+              >
+                <option value="General">General</option>
+                <option value="Tomatoes">Tomatoes</option>
+                <option value="Maize">Maize</option>
+                <option value="PestControl">Pest Control</option>
+                <option value="Poultry">Poultry</option>
+              </select>
+
+              <button
+                type="submit"
+                className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Post Discussion</span>
+              </button>
+            </div>
+          </form>
+
+          {/* Posts Feed */}
           <div className="space-y-4">
             {posts.map((post) => (
-              <div key={post.id} className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-3">
-                <div className="flex items-center justify-between">
+              <div key={post.id} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-3">
-                    <img src={post.authorAvatar} alt={post.author} className="w-10 h-10 rounded-full object-cover border border-emerald-300" />
+                    <img src={post.authorAvatar} alt={post.author} className="w-10 h-10 rounded-full object-cover border border-slate-200" />
                     <div>
                       <div className="flex items-center space-x-1.5">
-                        <span className="text-sm font-bold text-slate-900">{post.author}</span>
-                        {post.isVerified && <ShieldCheck className="w-4 h-4 text-emerald-600" />}
+                        <span className="font-bold text-slate-900">{post.author}</span>
+                        {post.isVerified && <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />}
                       </div>
-                      <p className="text-[11px] text-slate-500">{post.authorRole} • {post.timeAgo}</p>
+                      <p className="text-[10px] text-slate-500">{post.authorRole} • {post.timeAgo}</p>
                     </div>
                   </div>
+
+                  <span className="bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full text-[10px]">
+                    #{post.tags[0]}
+                  </span>
                 </div>
 
-                <p className="text-xs text-slate-800 leading-relaxed">{post.content}</p>
+                <p className="text-slate-700 leading-relaxed sm:text-xs">{post.content}</p>
 
                 {post.image && (
-                  <div className="rounded-xl overflow-hidden h-52 bg-slate-100">
-                    <img src={post.image} alt="Discussion" className="w-full h-full object-cover" />
-                  </div>
+                  <img src={post.image} alt="Post media" className="w-full aspect-[16/9] max-h-72 object-cover rounded-xl bg-slate-100" />
                 )}
 
-                {/* Tags */}
-                {post.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {post.tags.map((tag, idx) => (
-                      <span key={idx} className="text-[10px] font-semibold bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Action Row */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <div className="flex items-center space-x-4 pt-2 border-t border-slate-100 text-slate-500">
                   <button
                     onClick={() => handleLikePost(post.id)}
-                    className="flex items-center space-x-1.5 hover:text-emerald-700 transition-colors"
+                    className="flex items-center space-x-1 hover:text-rose-500 font-bold transition-colors"
                   >
-                    <ThumbsUp className="w-4 h-4" />
+                    <Heart className="w-4 h-4" />
                     <span>{post.likes} Likes</span>
                   </button>
 
-                  <div className="flex items-center space-x-1.5">
+                  <span className="flex items-center space-x-1 font-bold">
                     <MessageSquare className="w-4 h-4" />
                     <span>{post.commentsCount} Comments</span>
-                  </div>
-
-                  <button className="flex items-center space-x-1 hover:text-slate-800">
-                    <Share2 className="w-4 h-4" />
-                    <span>Share</span>
-                  </button>
+                  </span>
                 </div>
               </div>
             ))}
@@ -382,65 +197,86 @@ export const ConnectScreen: React.FC<ConnectScreenProps> = ({
         </div>
       )}
 
-      {/* VERIFIED EXPERTS DIRECTORY TAB */}
+      {/* Tab 2: Experts */}
       {activeTab === 'experts' && (
-        <div className="space-y-4">
-          <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">Verified Uganda Agricultural Experts</h2>
-              <p className="text-xs text-slate-500">Consult with senior agronomists, veterinary doctors, and soil scientists.</p>
-            </div>
-            <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
-              {experts.length} Verified Available
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {experts.map((exp) => (
-              <div key={exp.id} className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-4 hover:border-emerald-300 transition-colors">
-                <div className="flex items-start space-x-3">
-                  <img src={exp.avatar} alt={exp.name} className="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-500 shadow-sm" />
-                  <div className="flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          {experts.map((expert) => (
+            <div key={expert.id} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <img src={expert.avatar} alt={expert.name} className="w-14 h-14 rounded-2xl object-cover border border-slate-200" />
+                  <div>
                     <div className="flex items-center space-x-1.5">
-                      <h3 className="text-sm font-bold text-slate-900">{exp.name}</h3>
-                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                      <h3 className="font-bold text-slate-900 text-sm">{expert.name}</h3>
+                      {expert.isVerified && <ShieldCheck className="w-4 h-4 text-emerald-600" />}
                     </div>
-                    <p className="text-xs font-semibold text-emerald-800">{exp.title}</p>
-                    <div className="mt-1 flex items-center space-x-2 text-[11px] text-slate-500">
-                      <span className="flex items-center space-x-0.5 text-amber-500 font-bold">
-                        <Star className="w-3 h-3 fill-amber-400" />
-                        <span>{exp.rating} ({exp.reviewsCount})</span>
-                      </span>
-                      <span>• {exp.experienceYears} Years Exp</span>
-                    </div>
+                    <p className="text-[11px] font-semibold text-emerald-700">{expert.title}</p>
+                    <p className="text-[10px] text-slate-400 flex items-center mt-0.5">
+                      <MapPin className="w-3 h-3 mr-0.5" />
+                      {expert.location} • {expert.experienceYears} Years Exp.
+                    </p>
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/80 space-y-1 text-xs">
-                  <p className="font-bold text-slate-700">Specialization:</p>
-                  <p className="text-slate-600">{exp.specialization}</p>
-                  <p className="text-[11px] text-slate-500 mt-1 flex items-center space-x-1">
-                    <MapPin className="w-3 h-3" />
-                    <span>{exp.location}</span>
-                  </p>
-                </div>
+                <p className="text-slate-600 line-clamp-2">{expert.bio}</p>
 
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <span className="text-[11px] text-slate-500">Available: {exp.availableDays}</span>
-                  <button
-                    onClick={() => {
-                      setSelectedChatUser(exp);
-                      setActiveTab('chat');
-                    }}
-                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-sm transition-colors flex items-center space-x-1.5"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>Live Chat</span>
-                  </button>
+                <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 flex justify-between items-center text-[11px]">
+                  <span className="text-slate-500">Consultation Fee:</span>
+                  <span className="font-bold text-slate-900">{expert.consultationFee || 'Standard Rate'}</span>
                 </div>
               </div>
-            ))}
-          </div>
+
+              <div className="flex gap-2 pt-2 border-t border-slate-100">
+                <a
+                  href={`https://wa.me/${expert.whatsapp}?text=Hello%20${encodeURIComponent(expert.name)},%20I%20would%20like%20to%20consult%20you%20regarding%20my%20farm.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-center flex items-center justify-center space-x-1.5 shadow-sm"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Consult Expert</span>
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Tab 3: Opportunities */}
+      {activeTab === 'opportunities' && (
+        <div className="space-y-4 text-xs">
+          {opportunities.map((opp) => (
+            <div key={opp.id} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-md text-[10px]">
+                    {opp.type}
+                  </span>
+                  <h3 className="font-bold text-sm text-slate-900 mt-1">{opp.title}</h3>
+                  <p className="text-[11px] text-slate-500">{opp.organization} • Deadline: {opp.deadline}</p>
+                </div>
+              </div>
+
+              <p className="text-slate-700 leading-relaxed">{opp.description}</p>
+
+              <div className="pt-2 flex justify-between items-center border-t border-slate-100">
+                <span className="text-slate-400 font-medium flex items-center">
+                  <MapPin className="w-3.5 h-3.5 mr-1" />
+                  {opp.location}
+                </span>
+
+                <a
+                  href={opp.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl flex items-center space-x-1.5"
+                >
+                  <span>Apply Now</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -1,415 +1,186 @@
 import React, { useState } from 'react';
-import { MarketPrice, AgriNews, Opportunity } from '../types';
-import { MOCK_MARKET_PRICES, MOCK_AGRI_NEWS, MOCK_OPPORTUNITIES } from '../data/mockData';
+import { MarketPrice, AgriNews } from '../types';
+import { MOCK_MARKET_PRICES, MOCK_AGRI_NEWS } from '../data/mockData';
 import {
   TrendingUp,
-  TrendingDown,
-  Minus,
   Newspaper,
-  CloudSun,
-  Award,
-  Search,
-  ExternalLink,
-  MapPin,
   Calendar,
-  Building2,
-  Droplets,
-  Wind,
-  Thermometer,
-  LineChart,
-  CheckCircle2,
-  Info
+  MapPin,
+  Search,
+  Filter,
+  BarChart2,
+  ExternalLink,
+  CloudSun,
+  AlertCircle
 } from 'lucide-react';
 
 export const MarketInfoScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'prices' | 'news' | 'opportunities' | 'weather'>('prices');
-  const [priceSearch, setPriceSearch] = useState('');
-  const [newsCategory, setNewsCategory] = useState('All');
-  const [selectedCommodityForChart, setSelectedCommodityForChart] = useState<MarketPrice>(MOCK_MARKET_PRICES[0]);
+  const [prices, setPrices] = useState<MarketPrice[]>(MOCK_MARKET_PRICES);
+  const [selectedCommodity, setSelectedCommodity] = useState<MarketPrice>(MOCK_MARKET_PRICES[0]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [news, setNews] = useState<AgriNews[]>(MOCK_AGRI_NEWS);
+  const [activeTab, setActiveTab] = useState<'prices' | 'news' | 'weather'>('prices');
 
-  const newsCategories = ['All', 'Uganda Ag', 'Markets', 'Tech', 'Crops', 'Livestock'];
-
-  const filteredPrices = MOCK_MARKET_PRICES.filter(p =>
-    p.commodity.toLowerCase().includes(priceSearch.toLowerCase()) ||
-    p.market.toLowerCase().includes(priceSearch.toLowerCase()) ||
-    p.location.toLowerCase().includes(priceSearch.toLowerCase())
+  const filteredPrices = prices.filter(
+    p => selectedCategory === 'All' || p.category === selectedCategory
   );
-
-  const filteredNews = MOCK_AGRI_NEWS.filter(n =>
-    newsCategory === 'All' || n.category === newsCategory
-  );
-
-  // SVG Line Chart calculation helper
-  const historicalData = selectedCommodityForChart.historicalPrices || [
-    { date: 'May', price: 1000 },
-    { date: 'Jun', price: 1100 },
-    { date: 'Jul', price: 1150 },
-    { date: 'Aug', price: 1200 },
-    { date: 'Sep', price: 1220 },
-    { date: 'Oct', price: selectedCommodityForChart.priceUgx }
-  ];
-
-  const maxPrice = Math.max(...historicalData.map(d => d.price));
-  const minPrice = Math.min(...historicalData.map(d => d.price));
-
-  // Chart coordinates mapping (Width 500, Height 180)
-  const chartPoints = historicalData.map((d, i) => {
-    const x = (i / (historicalData.length - 1)) * 460 + 20;
-    const range = maxPrice - minPrice || 1;
-    const y = 150 - ((d.price - minPrice) / range) * 110;
-    return `${x},${y}`;
-  }).join(' ');
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-green-900 text-white rounded-3xl p-6 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-emerald-300">
-            <TrendingUp className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-xl font-extrabold">Uganda Market Intelligence & Info</h1>
-            <p className="text-xs text-emerald-100 mt-0.5">
-              Daily commodity prices, interactive trend charts, certified AgriNews, and grants.
-            </p>
-          </div>
+      {/* Banner */}
+      <div className="bg-gradient-to-r from-emerald-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Market Intelligence & News</h1>
+          <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-xl">
+            Live commodity prices, regional price trends, historical trade charts, and certified agricultural advisories.
+          </p>
         </div>
 
-        {/* Navigation Switcher */}
-        <div className="flex items-center bg-black/20 p-1.5 rounded-2xl backdrop-blur-md border border-white/10 text-xs font-bold overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('prices')}
-            className={`px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 whitespace-nowrap ${
-              activeTab === 'prices' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
-            }`}
-          >
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>Market Prices</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('news')}
-            className={`px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 whitespace-nowrap ${
-              activeTab === 'news' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
-            }`}
-          >
-            <Newspaper className="w-3.5 h-3.5" />
-            <span>AgriNews</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('opportunities')}
-            className={`px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 whitespace-nowrap ${
-              activeTab === 'opportunities' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
-            }`}
-          >
-            <Award className="w-3.5 h-3.5" />
-            <span>Opportunities</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('weather')}
-            className={`px-3.5 py-2 rounded-xl transition-all flex items-center space-x-1.5 whitespace-nowrap ${
-              activeTab === 'weather' ? 'bg-white text-emerald-900 shadow-sm' : 'text-emerald-100 hover:text-white'
-            }`}
-          >
-            <CloudSun className="w-3.5 h-3.5" />
-            <span>Weather</span>
-          </button>
+        <div className="flex items-center space-x-2 bg-emerald-700/50 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-emerald-500/30 text-xs font-bold">
+          <TrendingUp className="w-4 h-4 text-emerald-300" />
+          <span>Real-time Ticker</span>
         </div>
       </div>
 
-      {/* PRICES TAB WITH REAL GRAPH VISUALIZATION */}
+      {/* Navigation Bar */}
+      <div className="flex space-x-2 border-b border-slate-200 pb-2 text-xs font-bold">
+        <button
+          onClick={() => setActiveTab('prices')}
+          className={`px-4 py-2 rounded-xl transition-all ${activeTab === 'prices' ? 'bg-emerald-700 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+        >
+          Commodity Price Ticker & Trends
+        </button>
+        <button
+          onClick={() => setActiveTab('news')}
+          className={`px-4 py-2 rounded-xl transition-all ${activeTab === 'news' ? 'bg-emerald-700 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+        >
+          Curated Agricultural News ({news.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('weather')}
+          className={`px-4 py-2 rounded-xl transition-all ${activeTab === 'weather' ? 'bg-emerald-700 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+        >
+          Agri Weather Guidance
+        </button>
+      </div>
+
+      {/* Tab 1: Prices */}
       {activeTab === 'prices' && (
-        <div className="space-y-6">
-          {/* Real Interactive Price Trend Graph Component */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="space-y-6 text-xs">
+          {/* Commodity Historical Chart Card */}
+          <div className="bg-slate-900 text-white p-6 rounded-3xl border border-slate-800 shadow-xl space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
               <div>
-                <span className="text-[10px] uppercase font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
-                  6-Month Price Trend Visualizer
-                </span>
-                <h2 className="text-lg font-black text-slate-900 mt-1">
-                  {selectedCommodityForChart.commodity} Price Chart
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Market: <strong>{selectedCommodityForChart.market} ({selectedCommodityForChart.location})</strong>
-                </p>
+                <span className="text-[10px] text-emerald-400 font-bold uppercase">{selectedCommodity.category}</span>
+                <h3 className="text-xl font-extrabold">{selectedCommodity.commodity}</h3>
+                <span className="text-xs text-slate-400">{selectedCommodity.market} • {selectedCommodity.location}</span>
               </div>
-
               <div className="text-right">
-                <span className="text-xs text-slate-400 font-semibold">Current Price</span>
-                <p className="text-2xl font-black text-emerald-800">
-                  {selectedCommodityForChart.priceUgx.toLocaleString()} <span className="text-xs font-normal">UGX/{selectedCommodityForChart.unit}</span>
-                </p>
-              </div>
-            </div>
-
-            {/* SVG Line Graph */}
-            <div className="bg-slate-900 rounded-2xl p-4 text-white space-y-2 relative overflow-hidden">
-              <div className="flex justify-between text-[11px] text-slate-400 font-semibold mb-2">
-                <span>UGX {maxPrice.toLocaleString()}</span>
-                <span>Historical 6-Month Trend Curve</span>
-                <span>UGX {minPrice.toLocaleString()}</span>
-              </div>
-
-              <svg className="w-full h-44 overflow-visible" viewBox="0 0 500 180">
-                {/* Grid Lines */}
-                <line x1="0" y1="40" x2="500" y2="40" stroke="#334155" strokeDasharray="4 4" />
-                <line x1="0" y1="90" x2="500" y2="90" stroke="#334155" strokeDasharray="4 4" />
-                <line x1="0" y1="140" x2="500" y2="140" stroke="#334155" strokeDasharray="4 4" />
-
-                {/* Trend Polyline */}
-                <polyline
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  points={chartPoints}
-                />
-
-                {/* Data Points */}
-                {historicalData.map((d, i) => {
-                  const x = (i / (historicalData.length - 1)) * 460 + 20;
-                  const range = maxPrice - minPrice || 1;
-                  const y = 150 - ((d.price - minPrice) / range) * 110;
-                  return (
-                    <g key={i}>
-                      <circle cx={x} cy={y} r="5" className="fill-emerald-400 stroke-slate-900 stroke-2" />
-                      <text x={x} y={y - 12} textAnchor="middle" className="text-[10px] fill-slate-300 font-bold">
-                        {d.price.toLocaleString()}
-                      </text>
-                      <text x={x} y="175" textAnchor="middle" className="text-[10px] fill-slate-400">
-                        {d.date}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-          </div>
-
-          {/* Market Price Table */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm space-y-3">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="relative w-full sm:w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={priceSearch}
-                  onChange={(e) => setPriceSearch(e.target.value)}
-                  placeholder="Search commodity or market..."
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
-                />
-              </div>
-
-              <div className="text-xs text-slate-500 font-medium">
-                Click any row to view its interactive price trend graph above
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-100/80 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
-                  <tr>
-                    <th className="p-3.5">Commodity</th>
-                    <th className="p-3.5">Category</th>
-                    <th className="p-3.5">Price (UGX)</th>
-                    <th className="p-3.5">Market / Location</th>
-                    <th className="p-3.5 text-right">24h Trend</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-                  {filteredPrices.map((row) => (
-                    <tr
-                      key={row.id}
-                      onClick={() => setSelectedCommodityForChart(row)}
-                      className={`cursor-pointer transition-colors ${
-                        selectedCommodityForChart.id === row.id ? 'bg-emerald-100/60 font-bold' : 'hover:bg-slate-50'
-                      }`}
-                    >
-                      <td className="p-3.5 text-slate-900 flex items-center space-x-2">
-                        <LineChart className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{row.commodity}</span>
-                      </td>
-                      <td className="p-3.5"><span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-semibold">{row.category}</span></td>
-                      <td className="p-3.5 font-extrabold text-emerald-800">
-                        {row.priceUgx.toLocaleString()} <span className="text-[10px] text-slate-500 font-normal">/ {row.unit}</span>
-                      </td>
-                      <td className="p-3.5">{row.market} ({row.location})</td>
-                      <td className="p-3.5 text-right font-bold">
-                        <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[11px] ${
-                          row.trend === 'up' ? 'bg-emerald-100 text-emerald-800' : row.trend === 'down' ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
-                        }`}>
-                          {row.trend === 'up' && <TrendingUp className="w-3 h-3" />}
-                          {row.trend === 'down' && <TrendingDown className="w-3 h-3" />}
-                          {row.trend === 'stable' && <Minus className="w-3 h-3" />}
-                          <span>{row.changePercentage > 0 ? `+${row.changePercentage}%` : `${row.changePercentage}%`}</span>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* AGRINEWS TAB WITH CERTIFIED SOURCES & API DOCUMENTATION */}
-      {activeTab === 'news' && (
-        <div className="space-y-6">
-          {/* API Information Card for Real Sourced AgriNews */}
-          <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-5 shadow-sm space-y-2 text-xs">
-            <div className="flex items-center space-x-2 text-emerald-900 font-bold text-sm">
-              <CheckCircle2 className="w-5 h-5 text-emerald-700" />
-              <h3>Sourced AgriNews API Integration Guide</h3>
-            </div>
-            <p className="text-slate-700 leading-relaxed">
-              AgriNews in AgriSell.ug is curated from certified Ugandan authorities (MAAIF, UCDA, NARO, New Vision Agribusiness, Daily Monitor) and global bodies (FAO).
-            </p>
-            <div className="bg-white p-3 rounded-2xl border border-emerald-200/80 font-mono text-[11px] text-slate-800 space-y-1">
-              <p><strong>Recommended APIs for Live Fetching:</strong></p>
-              <p>1. <code>NewsAPI.org</code> (`q=Uganda+agriculture`, `domains=newvision.co.ug,monitor.co.ug`)</p>
-              <p>2. <code>MediaStack API</code> (`countries=ug`, `categories=business,health`)</p>
-              <p>3. <code>RSS Feeds</code> (`https://agriculture.go.ug/feed/`, `https://ugandacoffee.go.ug/feed`)</p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
-            {newsCategories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setNewsCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  newsCategory === cat
-                    ? 'bg-emerald-700 text-white shadow-sm'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredNews.map((news) => (
-              <div key={news.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:border-emerald-300 transition-all flex flex-col md:flex-row group">
-                <img src={news.image} alt={news.title} className="h-44 md:h-auto md:w-48 object-cover group-hover:scale-105 transition-transform duration-300" />
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
-                  <div>
-                    <div className="flex items-center justify-between text-[10px] text-slate-500 font-semibold mb-1">
-                      <span className="text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">{news.category}</span>
-                      <span>{news.date}</span>
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                      {news.title}
-                    </h3>
-                    <p className="text-xs text-slate-600 line-clamp-2 mt-1">
-                      {news.summary}
-                    </p>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                    <span>Source: <strong>{news.source}</strong></span>
-                    {news.originalUrl && (
-                      <a
-                        href={news.originalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-emerald-700 font-bold flex items-center hover:underline"
-                      >
-                        Source Link <ExternalLink className="w-3 h-3 ml-0.5" />
-                      </a>
-                    )}
-                  </div>
+                <div className="text-2xl font-black">
+                  {selectedCommodity.price.toLocaleString()} <span className="text-xs font-normal text-slate-400">{selectedCommodity.currency}/{selectedCommodity.unit}</span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* OPPORTUNITIES TAB */}
-      {activeTab === 'opportunities' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {MOCK_OPPORTUNITIES.map((opp) => (
-            <div key={opp.id} className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-3 hover:border-emerald-300 transition-colors">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-[10px] font-bold uppercase bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md">
-                    {opp.type}
-                  </span>
-                  <h3 className="text-base font-extrabold text-slate-900 mt-2">{opp.title}</h3>
-                  <p className="text-xs font-semibold text-slate-500 flex items-center space-x-1 mt-0.5">
-                    <Building2 className="w-3.5 h-3.5" />
-                    <span>{opp.organization}</span>
-                  </p>
-                </div>
-              </div>
-
-              <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                {opp.description}
-              </p>
-
-              <div className="pt-2 flex items-center justify-between text-xs border-t border-slate-100">
-                <span className="text-slate-500 flex items-center space-x-1">
-                  <Calendar className="w-3.5 h-3.5 text-rose-500" />
-                  <span>Deadline: <strong>{opp.deadline}</strong></span>
+                <span className={`text-xs font-bold ${selectedCommodity.trend === 'up' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {selectedCommodity.trend === 'up' ? `+${selectedCommodity.changePercentage}%` : `${selectedCommodity.changePercentage}%`}
                 </span>
-
-                <a
-                  href={opp.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center space-x-1"
-                >
-                  <span>Apply Now</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
               </div>
+            </div>
+
+            {/* Historical Bar Chart Visualization */}
+            <div className="space-y-2 pt-2">
+              <h4 className="font-bold text-slate-300 text-[11px]">Historical Monthly Price Trend</h4>
+              <div className="flex items-end space-x-3 h-36 bg-slate-800/60 p-4 rounded-2xl border border-slate-700/60">
+                {selectedCommodity.historicalPrices?.map((hp, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center space-y-2 h-full justify-end">
+                    <span className="text-[9px] text-slate-400 font-bold">{hp.price.toLocaleString()}</span>
+                    <div
+                      style={{ height: `${Math.min(100, (hp.price / selectedCommodity.price) * 80)}%` }}
+                      className="w-full bg-emerald-500 rounded-t-md hover:bg-emerald-400 transition-all"
+                    ></div>
+                    <span className="text-[10px] text-slate-400 font-bold">{hp.date}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Commodity Price Table */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold text-[11px]">
+                  <th className="p-3.5">Commodity</th>
+                  <th className="p-3.5">Market Location</th>
+                  <th className="p-3.5">Price</th>
+                  <th className="p-3.5">Trend</th>
+                  <th className="p-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {filteredPrices.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/50 cursor-pointer" onClick={() => setSelectedCommodity(item)}>
+                    <td className="p-3.5 font-bold text-slate-900">{item.commodity}</td>
+                    <td className="p-3.5">{item.market} ({item.location})</td>
+                    <td className="p-3.5 font-extrabold">{item.price.toLocaleString()} {item.currency}/{item.unit}</td>
+                    <td className="p-3.5">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.trend === 'up' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                        {item.trend === 'up' ? `+${item.changePercentage}%` : `${item.changePercentage}%`}
+                      </span>
+                    </td>
+                    <td className="p-3.5 text-right font-bold text-emerald-700">
+                      View Chart →
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 2: News */}
+      {activeTab === 'news' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          {news.map((n) => (
+            <div key={n.id} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <img src={n.image} alt={n.title} className="w-full aspect-video rounded-xl object-cover bg-slate-100" />
+                <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold">
+                  <span>{n.source}</span>
+                  <span>{n.date}</span>
+                </div>
+                <h3 className="font-bold text-sm text-slate-900 line-clamp-2">{n.title}</h3>
+                <p className="text-slate-600 line-clamp-3">{n.summary}</p>
+              </div>
+
+              <a
+                href={n.originalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pt-2 border-t border-slate-100 text-emerald-700 font-bold flex items-center justify-between"
+              >
+                <span>Read Full Article</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
           ))}
         </div>
       )}
 
-      {/* WEATHER TAB */}
+      {/* Tab 3: Weather */}
       {activeTab === 'weather' && (
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-6 max-w-2xl mx-auto">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4 text-xs">
+          <div className="flex items-center space-x-3">
+            <CloudSun className="w-8 h-8 text-amber-500" />
             <div>
-              <h2 className="text-lg font-extrabold text-slate-900">Uganda Agricultural Weather Guidance</h2>
-              <p className="text-xs text-slate-500">Seasonal rain forecasts & farming advisories for Central/Western regions.</p>
-            </div>
-            <CloudSun className="w-10 h-10 text-amber-500" />
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-xl">
-              <Thermometer className="w-5 h-5 text-amber-600 mx-auto" />
-              <span className="text-[10px] text-slate-500 uppercase font-bold block mt-1">Temperature</span>
-              <p className="text-lg font-black text-amber-900">27°C</p>
-            </div>
-
-            <div className="bg-blue-50 border border-blue-200 p-3.5 rounded-xl">
-              <Droplets className="w-5 h-5 text-blue-600 mx-auto" />
-              <span className="text-[10px] text-slate-500 uppercase font-bold block mt-1">Humidity</span>
-              <p className="text-lg font-black text-blue-900">68%</p>
-            </div>
-
-            <div className="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl">
-              <Wind className="w-5 h-5 text-emerald-600 mx-auto" />
-              <span className="text-[10px] text-slate-500 uppercase font-bold block mt-1">Rain Chance</span>
-              <p className="text-lg font-black text-emerald-900">75% (Moderate)</p>
+              <h3 className="font-bold text-base text-slate-900">Regional Planting Season Weather Guidance</h3>
+              <p className="text-slate-500">Seasonal precipitation and soil temperature advisories</p>
             </div>
           </div>
 
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Seasonal Farming Advisory</h4>
-            <p className="text-xs text-slate-700 leading-relaxed">
-              Second rains expected to continue through November. Ideal timing for top-dressing maize, bean weed control, and nursery seedling field transplantation.
+          <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl space-y-2 text-emerald-900">
+            <h4 className="font-bold text-xs">Optimal Planting Window:</h4>
+            <p>
+              Seasonal rains are forecasted across Central and Eastern agricultural zones. Ensure fields are tilled and seedbed preparation is complete prior to rainfall onset.
             </p>
           </div>
         </div>
