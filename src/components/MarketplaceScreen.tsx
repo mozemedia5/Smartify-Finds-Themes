@@ -1,34 +1,39 @@
 import React, { useState } from 'react';
 import { Listing, UserProfile } from '../types';
 import {
-  Store,
   Search,
-  MapPin,
-  ShieldCheck,
-  MessageCircle,
-  Phone,
+  Filter,
+  SlidersHorizontal,
+  CheckCircle2,
+  Heart,
+  Eye,
+  ShoppingBag,
   Plus,
   X,
   Star,
-  SlidersHorizontal,
-  CheckCircle,
-  Cpu,
-  Tractor,
-  Zap,
-  Wrench
+  MapPin,
+  Tag,
+  ShieldCheck,
+  ChevronDown,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 
 interface MarketplaceScreenProps {
   listings: Listing[];
   searchQuery: string;
-  setSearchQuery: (q: string) => void;
+  setSearchQuery: (query: string) => void;
   selectedListing: Listing | null;
-  setSelectedListing: (l: Listing | null) => void;
+  setSelectedListing: (listing: Listing | null) => void;
   isNewListingModalOpen: boolean;
   setIsNewListingModalOpen: (open: boolean) => void;
-  onAddListing: (newListing: Listing) => void;
-  userProfile?: UserProfile | null;
+  onAddListing: (listing: Listing) => void;
+  userProfile: UserProfile | null;
   techZoneOnly?: boolean;
+  wishlist: string[];
+  onToggleWishlist: (productId: string) => void;
+  onAddToCart: (listing: Listing, quantity: number) => void;
+  onOpenProductDetail: (listing: Listing) => void;
 }
 
 export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
@@ -41,84 +46,120 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
   setIsNewListingModalOpen,
   onAddListing,
   userProfile,
-  techZoneOnly = false
+  techZoneOnly = false,
+  wishlist,
+  onToggleWishlist,
+  onAddToCart,
+  onOpenProductDetail
 }) => {
+  // Filter & Sort state
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [selectedRegion, setSelectedRegion] = useState<string>('All');
-  const [listingTypeFilter, setListingTypeFilter] = useState<'all' | 'product' | 'service' | 'machinery'>(techZoneOnly ? 'machinery' : 'all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('All');
+  const [selectedCondition, setSelectedCondition] = useState<string>('All');
+  const [selectedLocation, setSelectedLocation] = useState<string>('All');
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(1000000);
+  const [verifiedOnly, setVerifiedOnly] = useState<boolean>(false);
+  const [deliveryOnly, setDeliveryOnly] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<'recommended' | 'newest' | 'price_low' | 'price_high' | 'rating'>('recommended');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
 
-  // Streamlined New Listing Form State
+  // Quick view state
+  const [quickViewListing, setQuickViewListing] = useState<Listing | null>(null);
+
+  // New Listing Form State
   const [formTitle, setFormTitle] = useState('');
-  const [formCategory, setFormCategory] = useState<Listing['category']>(techZoneOnly ? 'Machinery' : 'Seeds');
+  const [formCategory, setFormCategory] = useState<Listing['category']>('Seeds');
   const [formPrice, setFormPrice] = useState('');
-  const [formUnit, setFormUnit] = useState(techZoneOnly ? 'day' : 'kg');
+  const [formUnit, setFormUnit] = useState('kg');
+  const [formDistrict, setFormDistrict] = useState(userProfile?.district || 'Central District');
+  const [formStock, setFormStock] = useState('100 kg');
   const [formDescription, setFormDescription] = useState('');
-  const [formStockQty, setFormStockQty] = useState('');
   const [formImageUrl, setFormImageUrl] = useState('');
-  const [formType, setFormType] = useState<'product' | 'service' | 'machinery'>(techZoneOnly ? 'machinery' : 'product');
 
-  const categoriesList = techZoneOnly
-    ? ['All', 'Machinery', 'Inputs', 'Services']
-    : ['All', 'Seeds', 'Seedlings', 'Machinery', 'Services', 'Inputs', 'Livestock'];
+  const categories = techZoneOnly
+    ? ['All', 'Machinery', 'Services']
+    : ['All', 'Seeds', 'Seedlings', 'Machinery', 'Chemicals', 'Inputs', 'Livestock', 'Services', 'Produce'];
 
-  const regionsList = ['All', 'Central', 'Western', 'Eastern', 'Northern'];
+  const subcategoriesMap: Record<string, string[]> = {
+    Seeds: ['All', 'Cereal Seeds', 'Maize', 'Rice', 'Vegetable Seeds'],
+    Seedlings: ['All', 'Fruit Seedlings', 'Tree Seedlings', 'Coffee Seedlings'],
+    Machinery: ['All', 'Tractor Hire', 'Pumps & Irrigation', 'Processing Equipment', 'Drones'],
+    Inputs: ['All', 'Fertilizers', 'Soil Conditioners', 'Animal Feed'],
+    Chemicals: ['All', 'Pesticides', 'Fungicides', 'Herbicides']
+  };
 
-  const defaultPhone = userProfile?.phone || '+256 772 888999';
-  const defaultWhatsapp = userProfile?.whatsapp || '256772888999';
-  const defaultName = userProfile?.name || 'Uganda Agro Seller';
-  const defaultDistrict = userProfile?.district || 'Kampala';
+  // Filtering Logic
+  let filtered = listings.filter((l) => {
+    if (techZoneOnly && l.category !== 'Machinery' && l.category !== 'Services') return false;
 
-  const filteredListings = listings.filter((item) => {
-    const matchesTech = techZoneOnly
-      ? (item.type === 'machinery' || item.category === 'Machinery' || item.title.toLowerCase().includes('tractor') || item.title.toLowerCase().includes('pump') || item.title.toLowerCase().includes('spray'))
-      : true;
+    if (selectedCategory !== 'All' && l.category !== selectedCategory) return false;
+    if (selectedSubcategory !== 'All' && l.subcategory !== selectedSubcategory) return false;
+    if (selectedCondition !== 'All' && l.condition !== selectedCondition) return false;
+    if (selectedLocation !== 'All' && l.district !== selectedLocation) return false;
+    if (verifiedOnly && !l.isVerified) return false;
+    if (deliveryOnly && !l.deliveryAvailable) return false;
+    if (l.price < minPrice) return false;
+    if (maxPrice > 0 && l.price > maxPrice) return false;
 
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-    const matchesType = listingTypeFilter === 'all' || item.type === listingTypeFilter;
-
-    return matchesTech && matchesSearch && matchesCategory && matchesType;
-  });
-
-  const handleSubmitNewListing = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formTitle || !formPrice) {
-      alert('Please enter listing title and price.');
-      return;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchTitle = l.title.toLowerCase().includes(q);
+      const matchCat = l.category.toLowerCase().includes(q);
+      const matchLoc = l.location.toLowerCase().includes(q);
+      const matchSeller = l.farmerName.toLowerCase().includes(q);
+      if (!matchTitle && !matchCat && !matchLoc && !matchSeller) return false;
     }
 
+    return true;
+  });
+
+  // Sorting Logic
+  filtered = [...filtered].sort((a, b) => {
+    if (sortBy === 'newest') return b.id.localeCompare(a.id);
+    if (sortBy === 'price_low') return a.price - b.price;
+    if (sortBy === 'price_high') return b.price - a.price;
+    if (sortBy === 'rating') return b.rating - a.rating;
+    return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+  });
+
+  const handleCreateListing = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formTitle || !formPrice) return;
+
+    const defaultDistrict = formDistrict || userProfile?.district || 'Central District';
     const newListing: Listing = {
-      id: Date.now().toString(),
+      id: `list_${Date.now()}`,
+      sellerId: userProfile?.id || 'usr_seller',
       title: formTitle,
       category: formCategory,
-      priceUgx: Number(formPrice),
-      unit: formUnit || 'unit',
-      location: `${defaultDistrict}, Uganda`,
+      price: parseFloat(formPrice) || 0,
+      currency: 'UGX',
+      unit: formUnit,
+      location: `${defaultDistrict} Hub`,
       district: defaultDistrict,
-      farmerName: defaultName,
-      farmerRole: userProfile?.jobTitle || 'Commercial Agro Producer',
+      farmerName: userProfile?.name || 'Agri Seller',
+      farmerRole: userProfile?.jobTitle || 'Verified Seller',
       farmerAvatar: userProfile?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      isVerified: true,
-      phone: defaultPhone,
-      whatsapp: defaultWhatsapp,
-      images: [
-        formImageUrl || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=600'
-      ],
-      description: formDescription || 'Quality agricultural equipment/input verified in Uganda.',
-      stockQty: formStockQty || 'In Stock',
+      isVerified: userProfile?.isVerified || true,
+      phone: userProfile?.phone || '+256 700 000000',
+      whatsapp: userProfile?.whatsapp || '256700000000',
+      images: [formImageUrl || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600'],
+      description: formDescription || 'Quality verified agricultural listing.',
+      stockQty: formStock || 'In Stock',
+      stockStatus: 'In Stock',
       rating: 5.0,
       reviewsCount: 1,
-      featured: true,
-      type: formType,
+      featured: false,
+      type: formCategory === 'Machinery' ? 'machinery' : formCategory === 'Services' ? 'service' : 'product',
       createdAt: 'Just now'
     };
 
     onAddListing(newListing);
     setIsNewListingModalOpen(false);
+
+    // Reset Form
     setFormTitle('');
     setFormPrice('');
     setFormDescription('');
@@ -127,119 +168,77 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Top Banner Bar */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center space-x-2">
-              {techZoneOnly ? (
-                <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-md">
-                  <Cpu className="w-6 h-6" />
-                </div>
-              ) : (
-                <div className="w-10 h-10 rounded-2xl bg-emerald-700 text-white flex items-center justify-center font-bold shadow-md">
-                  <Store className="w-6 h-6" />
-                </div>
-              )}
-              <div>
-                <h1 className="text-xl font-extrabold text-slate-900">
-                  {techZoneOnly ? 'AgriTech Zone & Machinery Hub' : 'AgriSell Uganda Marketplace'}
-                </h1>
-                <p className="text-xs text-slate-500">
-                  {techZoneOnly
-                    ? 'Explore tractors, solar water pumps, drip irrigation kits, drones & farm machinery in Uganda.'
-                    : 'Direct connection discovery marketplace. Contact verified sellers directly via phone or WhatsApp.'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setIsNewListingModalOpen(true)}
-            className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 active:scale-95"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>{techZoneOnly ? '+ Post Equipment / Tech' : '+ Post New Listing'}</span>
-          </button>
+      {/* Header / Banner */}
+      <div className="bg-gradient-to-r from-emerald-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            {techZoneOnly ? 'AgriTech Zone & Machinery Hub' : 'Agricultural Products Marketplace'}
+          </h1>
+          <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-xl">
+            {techZoneOnly
+              ? 'Explore tractors, solar water pumps, drip irrigation kits, drones & farm machinery.'
+              : 'Discover certified seeds, crop protection, fertilizers, machinery, and fresh harvests from verified suppliers.'}
+          </p>
         </div>
 
-        {/* Feature Highlights Banner for Tech Zone */}
-        {techZoneOnly && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-center space-x-3">
-              <Tractor className="w-6 h-6 text-amber-700 flex-shrink-0" />
-              <div>
-                <h4 className="text-xs font-bold text-slate-900">Tractor & Plough Hire</h4>
-                <p className="text-[10px] text-slate-600">50HP - 90HP 4WD tractors with experienced operators</p>
-              </div>
-            </div>
+        <button
+          onClick={() => setIsNewListingModalOpen(true)}
+          className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-1.5 shadow-md transition-all active:scale-95 whitespace-nowrap"
+        >
+          <Plus className="w-4 h-4" />
+          <span>+ Create New Listing</span>
+        </button>
+      </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 flex items-center space-x-3">
-              <Zap className="w-6 h-6 text-blue-700 flex-shrink-0" />
-              <div>
-                <h4 className="text-xs font-bold text-slate-900">Solar Water Pumps</h4>
-                <p className="text-[10px] text-slate-600">Submersible solar irrigation pumps & drip kits</p>
-              </div>
-            </div>
-
-            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-center space-x-3">
-              <Wrench className="w-6 h-6 text-emerald-700 flex-shrink-0" />
-              <div>
-                <h4 className="text-xs font-bold text-slate-900">Processing Machines</h4>
-                <p className="text-[10px] text-slate-600">Maize millers, coffee hullers & cassava graters</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Filter Controls Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      {/* Main Search Bar & Mobile Filter Trigger */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search machinery, seeds, or location..."
-              className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
+              placeholder="Search products, brands, locations or sellers..."
+              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
             />
           </div>
 
-          <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-            <SlidersHorizontal className="w-4 h-4 text-slate-400" />
-            <span className="text-xs text-slate-500 font-semibold">Type:</span>
-            <select
-              value={listingTypeFilter}
-              onChange={(e) => setListingTypeFilter(e.target.value as any)}
-              className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none flex-1"
-            >
-              <option value="all">All Types</option>
-              <option value="machinery">Machinery & Tech</option>
-              <option value="product">Products</option>
-              <option value="service">Services</option>
-            </select>
-          </div>
+          <button
+            onClick={() => setIsFilterDrawerOpen(true)}
+            className="md:hidden flex items-center space-x-1.5 px-3.5 py-2.5 bg-emerald-50 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Filters</span>
+          </button>
 
-          <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-            <MapPin className="w-4 h-4 text-slate-400" />
-            <span className="text-xs text-slate-500 font-semibold">Region:</span>
-            <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none flex-1"
+          {/* View toggle */}
+          <div className="hidden sm:flex items-center border border-slate-200 rounded-xl p-1 bg-slate-50">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-lg text-xs ${viewMode === 'grid' ? 'bg-white text-emerald-700 shadow-sm font-bold' : 'text-slate-500'}`}
             >
-              {regionsList.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-lg text-xs ${viewMode === 'list' ? 'bg-white text-emerald-700 shadow-sm font-bold' : 'text-slate-500'}`}
+            >
+              <List className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
-          {categoriesList.map((cat) => (
+        {/* Scrollable Category Chips */}
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
+          {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              onClick={() => {
+                setSelectedCategory(cat);
+                setSelectedSubcategory('All');
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 selectedCategory === cat
                   ? 'bg-emerald-700 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -251,264 +250,353 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
         </div>
       </div>
 
-      {/* Listings Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredListings.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => setSelectedListing(item)}
-            className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer flex flex-col group"
-          >
-            <div className="relative h-48 bg-slate-100 overflow-hidden">
-              <img
-                src={item.images[0]}
-                alt={item.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <span className="absolute top-2.5 left-2.5 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">
-                {item.category}
-              </span>
-              {item.isVerified && (
-                <span className="absolute top-2.5 right-2.5 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center space-x-1 shadow-sm">
-                  <ShieldCheck className="w-3 h-3" />
-                  <span>Verified</span>
-                </span>
-              )}
+      {/* Main Grid Layout: Sidebar Filters + Products */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Desktop Sidebar Filters */}
+        <div className="hidden md:block col-span-1 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-6 h-fit sticky top-20">
+          <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h3 className="font-bold text-sm text-slate-900 flex items-center space-x-1.5">
+              <Filter className="w-4 h-4 text-emerald-700" />
+              <span>Filter Products</span>
+            </h3>
+            <button
+              onClick={() => {
+                setSelectedCategory('All');
+                setSelectedSubcategory('All');
+                setSelectedCondition('All');
+                setSelectedLocation('All');
+                setVerifiedOnly(false);
+                setDeliveryOnly(false);
+                setMinPrice(0);
+                setMaxPrice(1000000);
+              }}
+              className="text-[11px] font-bold text-emerald-700 hover:underline"
+            >
+              Reset All
+            </button>
+          </div>
+
+          {/* Subcategory */}
+          {subcategoriesMap[selectedCategory] && (
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 block">Subcategory</label>
+              <select
+                value={selectedSubcategory}
+                onChange={(e) => setSelectedSubcategory(e.target.value)}
+                className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
+              >
+                {subcategoriesMap[selectedCategory].map((sub) => (
+                  <option key={sub} value={sub}>{sub}</option>
+                ))}
+              </select>
             </div>
+          )}
 
-            <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-              <div>
-                <h3 className="text-base font-bold text-slate-900 line-clamp-2 group-hover:text-emerald-700 transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-xs text-slate-500 line-clamp-2 mt-1">
-                  {item.description}
-                </p>
-                <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-                  <div className="flex items-center space-x-1">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="font-medium text-slate-700">{item.location}</span>
-                  </div>
-                  <div className="flex items-center space-x-1 text-amber-500 font-bold">
-                    <Star className="w-3.5 h-3.5 fill-amber-400" />
-                    <span>{item.rating} ({item.reviewsCount})</span>
-                  </div>
-                </div>
-              </div>
+          {/* Condition */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-700 block">Condition</label>
+            <select
+              value={selectedCondition}
+              onChange={(e) => setSelectedCondition(e.target.value)}
+              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
+            >
+              <option value="All">All Conditions</option>
+              <option value="Certified">Certified / Official</option>
+              <option value="New">Brand New</option>
+              <option value="Used - Good">Used - Good</option>
+            </select>
+          </div>
 
-              {/* Seller & Contact Bar */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-semibold text-slate-400">Listed Price</span>
-                  <p className="text-base font-extrabold text-emerald-800">
-                    {item.priceUgx.toLocaleString()} <span className="text-xs font-normal text-slate-500">UGX/{item.unit}</span>
-                  </p>
-                </div>
+          {/* Toggles */}
+          <div className="space-y-3 pt-2 border-t border-slate-100">
+            <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={verifiedOnly}
+                onChange={(e) => setVerifiedOnly(e.target.checked)}
+                className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+              />
+              <span>Verified Sellers Only</span>
+            </label>
 
-                <div className="flex items-center space-x-1.5">
-                  <a
-                    href={`https://wa.me/${item.whatsapp}?text=Hello%20${encodeURIComponent(item.farmerName)},%20I%20am%20interested%20in%20your%20listing%20on%20AgriSell:%20${encodeURIComponent(item.title)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-2 bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white rounded-xl transition-colors"
-                    title="WhatsApp Seller"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                  </a>
-                  <a
-                    href={`tel:${item.phone}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-2 bg-slate-100 text-slate-800 hover:bg-slate-900 hover:text-white rounded-xl transition-colors"
-                    title="Call Seller"
-                  >
-                    <Phone className="w-4 h-4" />
-                  </a>
-                </div>
-              </div>
+            <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={deliveryOnly}
+                onChange={(e) => setDeliveryOnly(e.target.checked)}
+                className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+              />
+              <span>Delivery Available</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Product Grid Area */}
+        <div className="col-span-1 md:col-span-3 space-y-4">
+          {/* Sorting Bar */}
+          <div className="flex justify-between items-center bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm text-xs">
+            <span className="text-slate-500 font-medium">
+              Showing <strong className="text-slate-900">{filtered.length}</strong> products
+            </span>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-slate-500 hidden sm:inline">Sort by:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="bg-slate-50 border border-slate-200 rounded-xl p-1.5 font-bold text-slate-800 text-xs focus:outline-none"
+              >
+                <option value="recommended">Recommended</option>
+                <option value="newest">Newest First</option>
+                <option value="price_low">Price: Low to High</option>
+                <option value="price_high">Price: High to Low</option>
+                <option value="rating">Top Rated</option>
+              </select>
             </div>
           </div>
-        ))}
+
+          {/* Empty State */}
+          {filtered.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
+              <p className="text-4xl">🌾</p>
+              <h3 className="text-lg font-bold text-slate-900">No products match your criteria</h3>
+              <p className="text-xs text-slate-500">Try adjusting your category, price range, or filter options.</p>
+            </div>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filtered.map((item) => {
+                const isWishlisted = wishlist.includes(item.id);
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
+                  >
+                    <div>
+                      {/* Product Image Box */}
+                      <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
+                        <img
+                          src={item.images[0]}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+
+                        {/* Wishlist button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWishlist(item.id);
+                          }}
+                          className="absolute top-2.5 right-2.5 p-2 bg-white/90 hover:bg-white rounded-full shadow-sm text-slate-600 transition-all"
+                        >
+                          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-rose-500 text-rose-500' : ''}`} />
+                        </button>
+
+                        {/* Quick View Button */}
+                        <button
+                          onClick={() => setQuickViewListing(item)}
+                          className="absolute bottom-2.5 right-2.5 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-md flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Eye className="w-3 h-3" />
+                          <span>Quick View</span>
+                        </button>
+
+                        {item.isVerified && (
+                          <span className="absolute top-2.5 left-2.5 bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center space-x-1 shadow-sm">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Verified</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-4 space-y-2">
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="font-bold text-emerald-700 uppercase">{item.category}</span>
+                          <span className="text-slate-400 flex items-center">
+                            <Star className="w-3 h-3 text-amber-400 fill-amber-400 mr-0.5" />
+                            {item.rating} ({item.reviewsCount})
+                          </span>
+                        </div>
+
+                        <h3
+                          onClick={() => onOpenProductDetail(item)}
+                          className="text-sm font-bold text-slate-900 line-clamp-1 hover:text-emerald-700 transition-colors cursor-pointer"
+                        >
+                          {item.title}
+                        </h3>
+
+                        <div className="flex items-center space-x-1 text-xs text-slate-500">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{item.location}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action */}
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-100 flex items-center justify-between">
+                      <div>
+                        <div className="text-base font-extrabold text-slate-900">
+                          {item.price.toLocaleString()} <span className="text-[10px] font-normal text-slate-500">{item.currency}/{item.unit}</span>
+                        </div>
+                        <div className="text-[10px] text-emerald-600 font-semibold">{item.stockQty}</div>
+                      </div>
+
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => onAddToCart(item, 1)}
+                          className="p-2 bg-emerald-50 hover:bg-emerald-700 text-emerald-700 hover:text-white rounded-xl transition-colors"
+                          title="Add to Cart"
+                        >
+                          <ShoppingBag className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* List Mode */
+            <div className="space-y-3">
+              {filtered.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                >
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={item.images[0]}
+                      alt={item.title}
+                      className="w-20 h-20 rounded-xl object-cover bg-slate-100"
+                    />
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-emerald-700 uppercase">{item.category}</span>
+                      <h3
+                        onClick={() => onOpenProductDetail(item)}
+                        className="text-sm font-bold text-slate-900 hover:text-emerald-700 cursor-pointer"
+                      >
+                        {item.title}
+                      </h3>
+                      <div className="flex items-center space-x-3 text-xs text-slate-500">
+                        <span>{item.location}</span>
+                        <span>•</span>
+                        <span className="text-emerald-600 font-medium">{item.stockQty}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto space-x-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                    <div className="text-right">
+                      <div className="text-base font-extrabold text-slate-900">
+                        {item.price.toLocaleString()} <span className="text-xs font-normal text-slate-500">{item.currency}/{item.unit}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => onAddToCart(item, 1)}
+                      className="bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-sm"
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <span>Add to Cart</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Modal - Listing Details */}
-      {selectedListing && (
+      {/* Quick View Modal */}
+      {quickViewListing && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-5 animate-in fade-in zoom-in duration-200">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md uppercase">
-                  {selectedListing.category}
-                </span>
-                <h2 className="text-xl font-extrabold text-slate-900 mt-2">{selectedListing.title}</h2>
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button
+              onClick={() => setQuickViewListing(null)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="aspect-video rounded-2xl overflow-hidden bg-slate-100">
+              <img src={quickViewListing.images[0]} alt={quickViewListing.title} className="w-full h-full object-cover" />
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-emerald-700 uppercase">{quickViewListing.category}</span>
+              <h2 className="text-lg font-bold text-slate-900">{quickViewListing.title}</h2>
+              <p className="text-xs text-slate-600 line-clamp-3">{quickViewListing.description}</p>
+              <div className="text-xl font-extrabold text-slate-900 pt-2">
+                {quickViewListing.price.toLocaleString()} <span className="text-xs font-normal text-slate-500">{quickViewListing.currency}/{quickViewListing.unit}</span>
               </div>
+            </div>
+
+            <div className="pt-2 flex gap-3">
               <button
-                onClick={() => setSelectedListing(null)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                onClick={() => {
+                  onAddToCart(quickViewListing, 1);
+                  setQuickViewListing(null);
+                }}
+                className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center space-x-2"
               >
-                <X className="w-6 h-6" />
+                <ShoppingBag className="w-4 h-4" />
+                <span>Add to Cart</span>
               </button>
-            </div>
 
-            {/* Modal Image */}
-            <div className="h-64 rounded-xl overflow-hidden bg-slate-100">
-              <img src={selectedListing.images[0]} alt={selectedListing.title} className="w-full h-full object-cover" />
-            </div>
-
-            {/* Price & Stock */}
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-emerald-800 font-semibold">Price per {selectedListing.unit}</span>
-                <p className="text-2xl font-black text-emerald-900">
-                  {selectedListing.priceUgx.toLocaleString()} <span className="text-sm font-medium">UGX</span>
-                </p>
-              </div>
-              <div className="text-right">
-                <span className="text-xs text-slate-500 font-semibold">Availability</span>
-                <p className="text-sm font-bold text-slate-800">{selectedListing.stockQty}</p>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div>
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Product / Service Description</h4>
-              <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                {selectedListing.description}
-              </p>
-            </div>
-
-            {/* Seller Info Card */}
-            <div className="border border-slate-200 rounded-xl p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <img src={selectedListing.farmerAvatar} alt={selectedListing.farmerName} className="w-12 h-12 rounded-full object-cover border border-emerald-300" />
-                <div>
-                  <div className="flex items-center space-x-1.5">
-                    <span className="font-bold text-slate-900">{selectedListing.farmerName}</span>
-                    {selectedListing.isVerified && <ShieldCheck className="w-4 h-4 text-emerald-600" />}
-                  </div>
-                  <p className="text-xs text-slate-500">{selectedListing.farmerRole} • {selectedListing.location}</p>
-                </div>
-              </div>
-
-              <div className="text-right text-xs text-slate-500">
-                <p className="font-bold text-slate-800">Verified Partner</p>
-                <p className="text-[10px]">AgriSell Certified</p>
-              </div>
-            </div>
-
-            {/* Direct Contact Buttons */}
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <a
-                href={`https://wa.me/${selectedListing.whatsapp}?text=Hello%20${encodeURIComponent(selectedListing.farmerName)},%20I%20am%20interested%20in%20your%20listing%20on%20AgriSell:%20${encodeURIComponent(selectedListing.title)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl flex items-center justify-center space-x-2 shadow-md transition-colors"
+              <button
+                onClick={() => {
+                  onOpenProductDetail(quickViewListing);
+                  setQuickViewListing(null);
+                }}
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl text-xs text-center"
               >
-                <MessageCircle className="w-5 h-5" />
-                <span>Chat on WhatsApp</span>
-              </a>
-
-              <a
-                href={`tel:${selectedListing.phone}`}
-                className="py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl flex items-center justify-center space-x-2 shadow-md transition-colors"
-              >
-                <Phone className="w-5 h-5" />
-                <span>Call {selectedListing.phone}</span>
-              </a>
+                View Full Details
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal - Streamlined Create Listing Form */}
+      {/* New Listing Modal */}
       {isNewListingModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-lg font-extrabold text-slate-900">Post New Agri Listing</h3>
-                <p className="text-[11px] text-emerald-800 font-semibold">
-                  Contact details are automatically attached from your profile settings!
-                </p>
-              </div>
+              <h2 className="text-lg font-bold text-slate-900">Create Agricultural Listing</h2>
               <button onClick={() => setIsNewListingModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Auto-Attached Contact Info Preview Badge */}
-            <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-3 flex items-center justify-between text-xs text-emerald-900">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <div>
-                  <span className="font-bold">Posting As: {defaultName}</span>
-                  <span className="block text-[10px] text-slate-600">
-                    Phone: {defaultPhone} • District: {defaultDistrict}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmitNewListing} className="space-y-4 text-xs">
+            <form onSubmit={handleCreateListing} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Listing Type</label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setFormType('product')}
-                    className={`py-2 rounded-xl font-bold border transition-colors ${
-                      formType === 'product' ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'
-                    }`}
-                  >
-                    Product
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormType('service')}
-                    className={`py-2 rounded-xl font-bold border transition-colors ${
-                      formType === 'service' ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'
-                    }`}
-                  >
-                    Service
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormType('machinery')}
-                    className={`py-2 rounded-xl font-bold border transition-colors ${
-                      formType === 'machinery' ? 'bg-emerald-100 border-emerald-500 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'
-                    }`}
-                  >
-                    Machinery
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Listing Title *</label>
+                <label className="block font-bold text-slate-700 mb-1">Product Title *</label>
                 <input
                   type="text"
                   required
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
-                  placeholder="e.g. Grafted Orange Seedlings / 50HP Tractor Hire"
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
+                  placeholder="e.g. Certified Hybrid Maize Seeds 25kg"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Category *</label>
+                  <label className="block font-bold text-slate-700 mb-1">Category</label>
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value as any)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   >
                     <option value="Seeds">Seeds</option>
                     <option value="Seedlings">Seedlings</option>
                     <option value="Machinery">Machinery</option>
-                    <option value="Services">Services</option>
-                    <option value="Inputs">Inputs / Fertilizers</option>
+                    <option value="Chemicals">Chemicals</option>
+                    <option value="Inputs">Inputs</option>
                     <option value="Livestock">Livestock</option>
+                    <option value="Services">Services</option>
+                    <option value="Produce">Produce</option>
                   </select>
                 </div>
 
@@ -520,43 +608,43 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
                     value={formPrice}
                     onChange={(e) => setFormPrice(e.target.value)}
                     placeholder="e.g. 15000"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Unit (e.g. kg, pc, acre, day)</label>
+                  <label className="block font-bold text-slate-700 mb-1">Unit</label>
                   <input
                     type="text"
                     value={formUnit}
                     onChange={(e) => setFormUnit(e.target.value)}
-                    placeholder="kg"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+                    placeholder="kg, bag, acre, pc, day"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Quantity / Availability</label>
+                  <label className="block font-bold text-slate-700 mb-1">District / Location</label>
                   <input
                     type="text"
-                    value={formStockQty}
-                    onChange={(e) => setFormStockQty(e.target.value)}
-                    placeholder="e.g. 500 bags"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+                    value={formDistrict}
+                    onChange={(e) => setFormDistrict(e.target.value)}
+                    placeholder="District name"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Photo Image URL</label>
+                <label className="block font-bold text-slate-700 mb-1">Image URL</label>
                 <input
                   type="url"
                   value={formImageUrl}
                   onChange={(e) => setFormImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+                  placeholder="https://..."
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                 />
               </div>
 
@@ -566,16 +654,16 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
                   rows={3}
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
-                  placeholder="Provide detail on quality, seed germination rate, or service coverage..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
-                />
+                  placeholder="Provide specifications, quality guarantees, germination rate, or delivery details..."
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
+                ></textarea>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm rounded-xl shadow-md transition-all"
+                className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all"
               >
-                Publish Listing Immediately
+                Publish Listing
               </button>
             </form>
           </div>
